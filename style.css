@@ -80,6 +80,9 @@ body {
   padding: 4px 12px;
   border-radius: var(--radius-sm);
   font-family: var(--font-heading);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
   user-select: none;
   transition: all 0.2s ease;
   flex-shrink: 0;
@@ -87,14 +90,21 @@ body {
 
 .creator-badge:hover {
   border-color: #58a6ff;
-  background: rgba(88, 166, 255, 0.08);
+  background: rgba(88, 166, 255, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .creator-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--primary);
+  color: var(--text-main);
+  transition: color 0.2s ease;
+}
+
+.creator-badge:hover .creator-icon {
+  color: #58a6ff;
 }
 
 .creator-text-wrap {
@@ -115,6 +125,11 @@ body {
   font-size: 0.76rem;
   color: var(--text-main);
   font-weight: 700;
+  transition: color 0.2s ease;
+}
+
+.creator-badge:hover .creator-author {
+  color: #58a6ff;
 }
 
 .creator-version-pill {
