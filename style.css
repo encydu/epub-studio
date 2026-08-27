@@ -70,7 +70,15 @@ body {
   flex-wrap: wrap;
 }
 
-/* Creator Info Badge in Top Right */
+/* Header Right Badges Container */
+.header-right-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Creator & Site Info Badges */
 .creator-badge {
   display: inline-flex;
   align-items: center;
