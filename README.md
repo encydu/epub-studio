@@ -2,7 +2,15 @@
 
 An all-in-one, ultra-fast web and desktop application designed to clean, compress, split, edit metadata, and batch-process EPUB files. Built with a modern dark glassmorphism interface and multithreaded Python backend.
 
+[![Download Windows App](https://img.shields.io/badge/Download-Windows%20Standalone%20(.exe)-0078D4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/encydu/epub-cleaner/releases/latest)
+
 Developed by **[encydu](https://github.com/encydu)**.
+
+---
+
+## 📥 Download (Windows Standalone)
+No installation or Python required! Download the pre-built portable executable:
+👉 **[Download EPUB Cleaner.exe (Latest Release)](https://github.com/encydu/epub-cleaner/releases/latest)**
 
 ---
 
