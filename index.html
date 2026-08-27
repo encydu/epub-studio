@@ -63,197 +63,212 @@
       <section class="left-panel">
         
         <!-- File Input Card -->
-        <div class="card file-card">
-          <div class="card-header">
+        <div class="card file-card collapsible">
+          <div class="card-header" role="button" tabindex="0" title="Click to collapse / expand section">
             <h3>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
-              Select EPUB File / Folder (Single & Bulk)
+              <span>Select EPUB File / Folder</span>
             </h3>
+            <span class="card-toggle-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
           </div>
 
-          <!-- Drag & Drop Zone -->
-          <div id="drop-zone" class="drop-zone">
-            <input type="file" id="file-picker" accept=".epub" multiple hidden>
-            <div class="drop-zone-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            </div>
-            <div class="drop-zone-text">
-              <span class="drop-primary-text">Drag & Drop EPUB Files Here (Bulk Files Supported)</span>
-              <span class="drop-sub-text">or <span id="btn-browse-file" class="btn-link">Browse from Computer</span></span>
-            </div>
-          </div>
-
-          <!-- Path Input -->
-          <div class="input-group">
-            <label for="epub-path-input">Or Enter File / Directory Path (Recursive Scan Supported)</label>
-            <div class="path-input-wrapper">
-              <input type="text" id="epub-path-input" placeholder="C:\Novels or C:\Users\...\Book.epub" value="">
-              <button id="btn-analyze" class="btn btn-secondary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                Analyze
-              </button>
-            </div>
-          </div>
-
-          <!-- Enhanced Batch Files Queue Container -->
-          <div id="batch-queue-container" class="batch-queue-wrapper hidden">
-            <div class="batch-queue-header">
-              <div class="batch-queue-header-left">
-                <span class="batch-queue-title">File Queue (<span id="batch-file-count">0</span>)</span>
-                <span id="batch-selected-count" class="batch-sub-badge">0 selected</span>
+          <div class="card-body">
+            <!-- Drag & Drop Zone -->
+            <div id="drop-zone" class="drop-zone">
+              <input type="file" id="file-picker" accept=".epub" multiple hidden>
+              <div class="drop-zone-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
               </div>
-              <div class="batch-queue-header-actions">
-                <button type="button" id="btn-add-more-files" class="btn-queue-action" title="Add more files to queue">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                  Add
+              <div class="drop-zone-text">
+                <span class="drop-primary-text">Drag & Drop EPUB Files Here (Bulk Files Supported)</span>
+                <span class="drop-sub-text">or <span id="btn-browse-file" class="btn-link">Browse from Computer</span></span>
+              </div>
+            </div>
+
+            <!-- Path Input -->
+            <div class="input-group">
+              <label for="epub-path-input">Or Enter File / Directory Path (Recursive Scan Supported)</label>
+              <div class="path-input-wrapper">
+                <input type="text" id="epub-path-input" placeholder="C:\Novels or C:\Users\...\Book.epub" value="">
+                <button id="btn-analyze" class="btn btn-secondary">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  Analyze
                 </button>
-                <button type="button" id="btn-clear-batch" class="btn-clear-queue" title="Clear all files from queue">Clear</button>
               </div>
             </div>
 
-            <!-- Queue Selection Toolbar -->
-            <div class="batch-queue-toolbar">
-              <label class="batch-select-all-label">
-                <input type="checkbox" id="chk-batch-select-all" checked>
-                <span>Select All</span>
-              </label>
-              <span id="batch-queue-totals" class="batch-totals-meta">Total: 0 MB</span>
-            </div>
+            <!-- Enhanced Batch Files Queue Container -->
+            <div id="batch-queue-container" class="batch-queue-wrapper hidden">
+              <div class="batch-queue-header">
+                <div class="batch-queue-header-left">
+                  <span class="batch-queue-title">File Queue (<span id="batch-file-count">0</span>)</span>
+                  <span id="batch-selected-count" class="batch-sub-badge">0 selected</span>
+                </div>
+                <div class="batch-queue-header-actions">
+                  <button type="button" id="btn-add-more-files" class="btn-queue-action" title="Add more files to queue">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Add
+                  </button>
+                  <button type="button" id="btn-clear-batch" class="btn-clear-queue" title="Clear all files from queue">Clear</button>
+                </div>
+              </div>
 
-            <div id="batch-queue-list" class="batch-queue-list">
-              <!-- Dynamically populated list of files -->
-            </div>
+              <!-- Queue Selection Toolbar -->
+              <div class="batch-queue-toolbar">
+                <label class="batch-select-all-label">
+                  <input type="checkbox" id="chk-batch-select-all" checked>
+                  <span>Select All</span>
+                </label>
+                <span id="batch-queue-totals" class="batch-totals-meta">Total: 0 MB</span>
+              </div>
 
-            <!-- Output Destination Settings -->
-            <div class="batch-output-config">
-              <label class="batch-output-label" for="batch-output-dest-select">
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                Save Output Destination:
-              </label>
-              <select id="batch-output-dest-select" class="select-input select-sm">
-                <option value="uploads" selected>Application Folder (uploads/batch)</option>
-                <option value="same_dir">Source Directory (_cleaned / _compressed)</option>
-                <option value="custom_dir">Custom Directory...</option>
-              </select>
-              <input type="text" id="batch-custom-dir-input" class="pattern-input input-sm hidden" placeholder="Target folder path (e.g., D:\Cleaned Novels)">
+              <div id="batch-queue-list" class="batch-queue-list">
+                <!-- Dynamically populated list of files -->
+              </div>
+
+              <!-- Output Destination Settings -->
+              <div class="batch-output-config">
+                <label class="batch-output-label" for="batch-output-dest-select">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                  Save Output Destination:
+                </label>
+                <select id="batch-output-dest-select" class="select-input select-sm">
+                  <option value="uploads" selected>Application Folder (uploads/batch)</option>
+                  <option value="same_dir">Source Directory (_cleaned / _compressed)</option>
+                  <option value="custom_dir">Custom Directory...</option>
+                </select>
+                <input type="text" id="batch-custom-dir-input" class="pattern-input input-sm hidden" placeholder="Target folder path (e.g., D:\Cleaned Novels)">
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Mode 1: Cleaning Options Card -->
-        <div id="panel-options-clean" class="card options-card mode-panel">
-          <div class="card-header">
+        <div id="panel-options-clean" class="card options-card mode-panel collapsible">
+          <div class="card-header" role="button" tabindex="0" title="Click to collapse / expand section">
             <h3>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
-              Text Cleaning Module
+              <span>Text Cleaning Module</span>
             </h3>
+            <span class="card-toggle-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
           </div>
           
-          <div class="options-grid">
-            <label class="toggle-option">
-              <div class="switch-wrapper">
-                <input type="checkbox" id="opt-zws" checked>
-                <span class="slider"></span>
-              </div>
-              <div class="toggle-content">
-                <div class="toggle-title">Zero-Width Space (ZWS)</div>
-                <div class="toggle-desc">Removes invisible characters <code>\u200B</code>, <code>\u200C</code>, <code>\u200D</code>, <code>\uFEFF</code></div>
-              </div>
-            </label>
+          <div class="card-body">
+            <div class="options-grid">
+              <label class="toggle-option">
+                <div class="switch-wrapper">
+                  <input type="checkbox" id="opt-zws" checked>
+                  <span class="slider"></span>
+                </div>
+                <div class="toggle-content">
+                  <div class="toggle-title">Zero-Width Space (ZWS)</div>
+                  <div class="toggle-desc">Removes invisible characters <code>\u200B</code>, <code>\u200C</code>, <code>\u200D</code>, <code>\uFEFF</code></div>
+                </div>
+              </label>
 
-            <label class="toggle-option">
-              <div class="switch-wrapper">
-                <input type="checkbox" id="opt-hidden" checked>
-                <span class="slider"></span>
-              </div>
-              <div class="toggle-content">
-                <div class="toggle-title">Hidden Elements & Watermarks</div>
-                <div class="toggle-desc">Removes tags with <code>aria-hidden="true"</code>, <code>display:none</code>, & <code>font-size:0</code></div>
-              </div>
-            </label>
+              <label class="toggle-option">
+                <div class="switch-wrapper">
+                  <input type="checkbox" id="opt-hidden" checked>
+                  <span class="slider"></span>
+                </div>
+                <div class="toggle-content">
+                  <div class="toggle-title">Hidden Elements & Watermarks</div>
+                  <div class="toggle-desc">Removes tags with <code>aria-hidden="true"</code>, <code>display:none</code>, & <code>font-size:0</code></div>
+                </div>
+              </label>
 
-            <label class="toggle-option">
-              <div class="switch-wrapper">
-                <input type="checkbox" id="opt-attrs" checked>
-                <span class="slider"></span>
-              </div>
-              <div class="toggle-content">
-                <div class="toggle-title">Dynamic Watermark Attributes</div>
-                <div class="toggle-desc">Removes randomized tracking attributes (e.g. <code>xya="brand novel"</code>)</div>
-              </div>
-            </label>
+              <label class="toggle-option">
+                <div class="switch-wrapper">
+                  <input type="checkbox" id="opt-attrs" checked>
+                  <span class="slider"></span>
+                </div>
+                <div class="toggle-content">
+                  <div class="toggle-title">Dynamic Watermark Attributes</div>
+                  <div class="toggle-desc">Removes randomized tracking attributes (e.g. <code>xya="brand novel"</code>)</div>
+                </div>
+              </label>
 
-            <label class="toggle-option">
-              <div class="switch-wrapper">
-                <input type="checkbox" id="opt-custom" checked>
-                <span class="slider"></span>
-              </div>
-              <div class="toggle-content">
-                <div class="toggle-title">Promotional / Ad Regex Filter</div>
-                <div class="toggle-desc">Removes promotional phrases like "Read on ..." or site advertisement links</div>
-              </div>
-            </label>
+              <label class="toggle-option">
+                <div class="switch-wrapper">
+                  <input type="checkbox" id="opt-custom" checked>
+                  <span class="slider"></span>
+                </div>
+                <div class="toggle-content">
+                  <div class="toggle-title">Promotional / Ad Regex Filter</div>
+                  <div class="toggle-desc">Removes promotional phrases like "Read on ..." or site advertisement links</div>
+                </div>
+              </label>
 
-            <!-- Custom Watermark Pattern Manager -->
-            <div id="custom-pattern-manager" class="custom-pattern-wrapper">
-              <div class="pattern-input-group">
-                <input type="text" id="input-new-pattern" placeholder="Add custom ad regex or keyword (e.g. NovelSite.com)" class="pattern-input">
-                <button id="btn-add-pattern" class="btn btn-secondary btn-sm" type="button">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                  Add
-                </button>
-              </div>
-              <div id="pattern-tags-list" class="pattern-tags-list">
-                <!-- Dynamically rendered pattern tags -->
+              <!-- Custom Watermark Pattern Manager -->
+              <div id="custom-pattern-manager" class="custom-pattern-wrapper">
+                <div class="pattern-input-group">
+                  <input type="text" id="input-new-pattern" placeholder="Add custom ad regex or keyword (e.g. NovelSite.com)" class="pattern-input">
+                  <button id="btn-add-pattern" class="btn btn-secondary btn-sm" type="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Add
+                  </button>
+                </div>
+                <div id="pattern-tags-list" class="pattern-tags-list">
+                  <!-- Dynamically rendered pattern tags -->
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Mode 2: Compress & WebP Options Card -->
-        <div id="panel-options-compress" class="card options-card mode-panel hidden">
-          <div class="card-header">
+        <div id="panel-options-compress" class="card options-card mode-panel hidden collapsible">
+          <div class="card-header" role="button" tabindex="0" title="Click to collapse / expand section">
             <h3>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-              Image Compression & WebP Options
+              <span>Image Compression & WebP Options</span>
             </h3>
+            <span class="card-toggle-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
           </div>
 
-          <div class="control-grid">
-            <div class="input-group">
-              <label for="webp-quality-input">WebP Quality (<span id="webp-quality-val">75</span>%):</label>
-              <input type="range" id="webp-quality-input" min="30" max="95" value="75" class="range-slider">
-            </div>
-
-            <div class="input-group">
-              <label for="max-res-select">Maximum Image Resolution:</label>
-              <select id="max-res-select" class="select-input">
-                <option value="800">800 px (Compact & Lightweight)</option>
-                <option value="1000" selected>1000 px (Standard Recommendation)</option>
-                <option value="1200">1200 px (High Quality)</option>
-                <option value="0">Original Size (No Resize)</option>
-              </select>
-            </div>
-
-            <div class="compress-savings-banner" id="compress-savings-banner">
-              <div class="savings-banner-header">
-                <div class="savings-banner-title-wrap">
-                  <span class="savings-banner-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-                  </span>
-                  <span class="savings-banner-title">Projected Storage Savings:</span>
-                </div>
-                <span class="savings-banner-badge" id="compress-savings-badge">~0%</span>
+          <div class="card-body">
+            <div class="control-grid">
+              <div class="input-group">
+                <label for="webp-quality-input">WebP Quality (<span id="webp-quality-val">75</span>%):</label>
+                <input type="range" id="webp-quality-input" min="30" max="95" value="75" class="range-slider">
               </div>
-              <div class="savings-banner-details">
-                <div class="savings-banner-item">
-                  <span class="savings-item-label">Reduction:</span>
-                  <span class="savings-item-val" id="compress-savings-amount">0 MB</span>
+
+              <div class="input-group">
+                <label for="max-res-select">Maximum Image Resolution:</label>
+                <select id="max-res-select" class="select-input">
+                  <option value="800">800 px (Compact & Lightweight)</option>
+                  <option value="1000" selected>1000 px (Standard Recommendation)</option>
+                  <option value="1200">1200 px (High Quality)</option>
+                  <option value="0">Original Size (No Resize)</option>
+                </select>
+              </div>
+
+              <div class="compress-savings-banner" id="compress-savings-banner">
+                <div class="savings-banner-header">
+                  <div class="savings-banner-title-wrap">
+                    <span class="savings-banner-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                    </span>
+                    <span class="savings-banner-title">Projected Storage Savings:</span>
+                  </div>
+                  <span class="savings-banner-badge" id="compress-savings-badge">~0%</span>
                 </div>
-                <div class="savings-banner-divider">/</div>
-                <div class="savings-banner-item">
-                  <span class="savings-item-label">Final Target:</span>
-                  <span class="savings-item-val" id="compress-savings-target">0 MB</span>
+                <div class="savings-banner-details">
+                  <div class="savings-banner-item">
+                    <span class="savings-item-label">Reduction:</span>
+                    <span class="savings-item-val" id="compress-savings-amount">0 MB</span>
+                  </div>
+                  <div class="savings-banner-divider">/</div>
+                  <div class="savings-banner-item">
+                    <span class="savings-item-label">Final Target:</span>
+                    <span class="savings-item-val" id="compress-savings-target">0 MB</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -261,78 +276,88 @@
         </div>
 
         <!-- Mode 3: Split EPUB Options Card -->
-        <div id="panel-options-split" class="card options-card mode-panel hidden">
-          <div class="card-header">
+        <div id="panel-options-split" class="card options-card mode-panel hidden collapsible">
+          <div class="card-header" role="button" tabindex="0" title="Click to collapse / expand section">
             <h3>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
-              EPUB Volume Partitioner (Splitter)
+              <span>EPUB Volume Partitioner (Splitter)</span>
             </h3>
+            <span class="card-toggle-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
           </div>
 
-          <div class="control-grid">
-            <div class="input-group">
-              <label for="split-size-input">Max Size per Volume (MB):</label>
-              <input type="number" id="split-size-input" value="10" min="1" max="50" class="number-input">
-            </div>
+          <div class="card-body">
+            <div class="control-grid">
+              <div class="input-group">
+                <label for="split-size-input">Max Size per Volume (MB):</label>
+                <input type="number" id="split-size-input" value="10" min="1" max="50" class="number-input">
+              </div>
 
-            <label class="toggle-option">
-              <div class="switch-wrapper">
-                <input type="checkbox" id="opt-split-webp" checked>
-                <span class="slider"></span>
-              </div>
-              <div class="toggle-content">
-                <div class="toggle-title">Auto-Compress Images to WebP When Splitting</div>
-                <div class="toggle-desc">Maximizes volume size efficiency and reader performance</div>
-              </div>
-            </label>
+              <label class="toggle-option">
+                <div class="switch-wrapper">
+                  <input type="checkbox" id="opt-split-webp" checked>
+                  <span class="slider"></span>
+                </div>
+                <div class="toggle-content">
+                  <div class="toggle-title">Auto-Compress Images to WebP When Splitting</div>
+                  <div class="toggle-desc">Maximizes volume size efficiency and reader performance</div>
+                </div>
+              </label>
+            </div>
           </div>
         </div>
 
         <!-- Mode 4: Edit Metadata & Cover Options Card -->
-        <div id="panel-options-metadata" class="card options-card mode-panel hidden">
-          <div class="card-header">
+        <div id="panel-options-metadata" class="card options-card mode-panel hidden collapsible">
+          <div class="card-header" role="button" tabindex="0" title="Click to collapse / expand section">
             <h3>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-              Edit Book Information & Cover
+              <span>Edit Book Information & Cover</span>
             </h3>
+            <span class="card-toggle-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
           </div>
 
-          <div class="control-grid">
-            <div class="input-group">
-              <label for="meta-title-input">Book Title:</label>
-              <input type="text" id="meta-title-input" placeholder="Enter book title..." class="pattern-input">
-            </div>
-
-            <div class="input-group">
-              <label for="meta-creator-input">Author / Creator:</label>
-              <input type="text" id="meta-creator-input" placeholder="Author name..." class="pattern-input">
-            </div>
-
-            <div class="input-group">
-              <label for="meta-desc-input">Description / Synopsis:</label>
-              <textarea id="meta-desc-input" placeholder="Book synopsis or summary..." class="pattern-input meta-textarea" rows="2"></textarea>
-            </div>
-
-            <div class="meta-row">
-              <div class="input-group flex-1">
-                <label for="meta-publisher-input">Publisher:</label>
-                <input type="text" id="meta-publisher-input" placeholder="Publisher name..." class="pattern-input">
+          <div class="card-body">
+            <div class="control-grid">
+              <div class="input-group">
+                <label for="meta-title-input">Book Title:</label>
+                <input type="text" id="meta-title-input" placeholder="Enter book title..." class="pattern-input">
               </div>
 
-              <div class="input-group width-90">
-                <label for="meta-lang-input">Language:</label>
-                <input type="text" id="meta-lang-input" placeholder="en" value="en" class="pattern-input">
+              <div class="input-group">
+                <label for="meta-creator-input">Author / Creator:</label>
+                <input type="text" id="meta-creator-input" placeholder="Author name..." class="pattern-input">
               </div>
-            </div>
 
-            <!-- Cover Replacement Box -->
-            <div class="cover-upload-box">
-              <input type="file" id="cover-file-picker" accept="image/jpeg,image/png,image/webp" hidden>
-              <button type="button" id="btn-browse-cover" class="btn btn-secondary btn-full btn-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                Upload / Replace Cover Image
-              </button>
-              <span id="cover-file-name" class="cover-filename-label">Formats: JPG, PNG, WEBP</span>
+              <div class="input-group">
+                <label for="meta-desc-input">Description / Synopsis:</label>
+                <textarea id="meta-desc-input" placeholder="Book synopsis or summary..." class="pattern-input meta-textarea" rows="2"></textarea>
+              </div>
+
+              <div class="meta-row">
+                <div class="input-group flex-1">
+                  <label for="meta-publisher-input">Publisher:</label>
+                  <input type="text" id="meta-publisher-input" placeholder="Publisher name..." class="pattern-input">
+                </div>
+
+                <div class="input-group width-90">
+                  <label for="meta-lang-input">Language:</label>
+                  <input type="text" id="meta-lang-input" placeholder="en" value="en" class="pattern-input">
+                </div>
+              </div>
+
+              <!-- Cover Replacement Box -->
+              <div class="cover-upload-box">
+                <input type="file" id="cover-file-picker" accept="image/jpeg,image/png,image/webp" hidden>
+                <button type="button" id="btn-browse-cover" class="btn btn-secondary btn-full btn-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  Upload / Replace Cover Image
+                </button>
+                <span id="cover-file-name" class="cover-filename-label">Formats: JPG, PNG, WEBP</span>
+              </div>
             </div>
           </div>
         </div>

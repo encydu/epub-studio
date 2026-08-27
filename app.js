@@ -174,6 +174,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalDimensionVal = document.getElementById('modal-dimension-val');
   const modalDeleteBtn = document.getElementById('modal-delete-btn');
 
+  // --- Collapsible Cards Toggle Handler ---
+  document.querySelectorAll('.card.collapsible .card-header').forEach(header => {
+    header.addEventListener('click', (e) => {
+      if (e.target.closest('button') || e.target.closest('input') || e.target.closest('select') || e.target.closest('a')) return;
+      const card = header.closest('.card');
+      if (card) {
+        card.classList.toggle('collapsed');
+      }
+    });
+
+    header.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        header.click();
+      }
+    });
+  });
+
   // --- Global Application State ---
   let activeMode = 'clean'; // 'clean', 'compress', 'split', 'metadata', 'batch'
   let previousModeBeforeBatch = 'clean';

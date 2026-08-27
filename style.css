@@ -185,6 +185,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  transition: all 0.2s ease;
 }
 
 .card-header {
@@ -193,6 +194,58 @@ body {
   justify-content: space-between;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 8px;
+  user-select: none;
+}
+
+.card.collapsible .card-header {
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s ease;
+}
+
+.card.collapsible .card-header:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.card-toggle-icon {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  border-radius: 4px;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease, background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.card.collapsible .card-header:hover .card-toggle-icon {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card.collapsed {
+  gap: 0 !important;
+  padding-bottom: 8px;
+}
+
+.card.collapsed .card-header {
+  border-bottom-color: transparent;
+  padding-bottom: 0;
+}
+
+.card.collapsed .card-toggle-icon {
+  transform: rotate(-90deg);
+}
+
+.card.collapsed .card-body {
+  display: none !important;
 }
 
 .card-header h3 {
