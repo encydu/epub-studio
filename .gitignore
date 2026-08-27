@@ -1,0 +1,29 @@
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+dist/
+
+# User uploads & processed files
+uploads/*
+!uploads/.gitkeep
+*.epub
+*.zip
+
+# PyInstaller / Build artifacts
+*.manifest
+*.spec
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+scratch/

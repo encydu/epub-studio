@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EPUB Studio - Cleaner, Compressor, Splitter & Batch Processor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- App Header: Mode Navigation Tabs & Creator Info -->
+    <header class="app-header">
+      <nav class="mode-nav">
+        <button class="mode-tab active" data-mode="clean">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+          Clean EPUB
+        </button>
+        <button class="mode-tab" data-mode="compress">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Compress Images & WebP
+        </button>
+        <button class="mode-tab" data-mode="split">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
+          Split EPUB Volumes
+        </button>
+        <button class="mode-tab" data-mode="metadata">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M12 6v6"/><path d="M9 9h6"/></svg>
+          Edit Metadata & Cover
+        </button>
+        <button class="mode-tab" data-mode="batch" id="tab-mode-batch">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
+          Batch Dashboard <span id="nav-batch-badge" class="nav-count-badge hidden">0</span>
+        </button>
+      </nav>
+
+      <!-- Creator & Application Info Badge (Top Right) -->
+      <div class="creator-badge" title="EPUB Studio Developer & Build Info">
+        <div class="creator-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="creator-text-wrap">
+          <span class="creator-title">Developed by</span>
+          <span class="creator-author">encydu</span>
+        </div>
+        <span class="creator-version-pill">v2.0</span>
+      </div>
+    </header>
+
+    <!-- Main Grid Layout -->
+    <main class="main-grid">
+      
+      <!-- Left Column: Input & Options -->
+      <section class="left-panel">
+        
+        <!-- File Input Card -->
+        <div class="card file-card">
+          <div class="card-header">
+            <h3>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Select EPUB File / Folder (Single & Bulk)
+            </h3>
+          </div>
+
+          <!-- Drag & Drop Zone -->
+          <div id="drop-zone" class="drop-zone">
+            <input type="file" id="file-picker" accept=".epub" multiple hidden>
+            <div class="drop-zone-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <div class="drop-zone-text">
+              <span class="drop-primary-text">Drag & Drop EPUB Files Here (Bulk Files Supported)</span>
+              <span class="drop-sub-text">or <span id="btn-browse-file" class="btn-link">Browse from Computer</span></span>
+            </div>
+          </div>
+
+          <!-- Path Input -->
+          <div class="input-group">
+            <label for="epub-path-input">Or Enter File / Directory Path (Recursive Scan Supported)</label>
+            <div class="path-input-wrapper">
+              <input type="text" id="epub-path-input" placeholder="C:\Novels or C:\Users\...\Book.epub" value="">
+              <button id="btn-analyze" class="btn btn-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Analyze
+              </button>
+            </div>
+          </div>
+
+          <!-- Enhanced Batch Files Queue Container -->
+          <div id="batch-queue-container" class="batch-queue-wrapper hidden">
+            <div class="batch-queue-header">
+              <div class="batch-queue-header-left">
+                <span class="batch-queue-title">File Queue (<span id="batch-file-count">0</span>)</span>
+                <span id="batch-selected-count" class="batch-sub-badge">0 selected</span>
+              </div>
+              <div class="batch-queue-header-actions">
+                <button type="button" id="btn-add-more-files" class="btn-queue-action" title="Add more files to queue">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Add
+                </button>
+                <button type="button" id="btn-clear-batch" class="btn-clear-queue" title="Clear all files from queue">Clear</button>
+              </div>
+            </div>
+
+            <!-- Queue Selection Toolbar -->
+            <div class="batch-queue-toolbar">
+              <label class="batch-select-all-label">
+                <input type="checkbox" id="chk-batch-select-all" checked>
+                <span>Select All</span>
+              </label>
+              <span id="batch-queue-totals" class="batch-totals-meta">Total: 0 MB</span>
+            </div>
+
+            <div id="batch-queue-list" class="batch-queue-list">
+              <!-- Dynamically populated list of files -->
+            </div>
+
+            <!-- Output Destination Settings -->
+            <div class="batch-output-config">
+              <label class="batch-output-label" for="batch-output-dest-select">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                Save Output Destination:
+              </label>
+              <select id="batch-output-dest-select" class="select-input select-sm">
+                <option value="uploads" selected>Application Folder (uploads/batch)</option>
+                <option value="same_dir">Source Directory (_cleaned / _compressed)</option>
+                <option value="custom_dir">Custom Directory...</option>
+              </select>
+              <input type="text" id="batch-custom-dir-input" class="pattern-input input-sm hidden" placeholder="Target folder path (e.g., D:\Cleaned Novels)">
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode 1: Cleaning Options Card -->
+        <div id="panel-options-clean" class="card options-card mode-panel">
+          <div class="card-header">
+            <h3>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+              Text Cleaning Module
+            </h3>
+          </div>
+          
+          <div class="options-grid">
+            <label class="toggle-option">
+              <div class="switch-wrapper">
+                <input type="checkbox" id="opt-zws" checked>
+                <span class="slider"></span>
+              </div>
+              <div class="toggle-content">
+                <div class="toggle-title">Zero-Width Space (ZWS)</div>
+                <div class="toggle-desc">Removes invisible characters <code>\u200B</code>, <code>\u200C</code>, <code>\u200D</code>, <code>\uFEFF</code></div>
+              </div>
+            </label>
+
+            <label class="toggle-option">
+              <div class="switch-wrapper">
+                <input type="checkbox" id="opt-hidden" checked>
+                <span class="slider"></span>
+              </div>
+              <div class="toggle-content">
+                <div class="toggle-title">Hidden Elements & Watermarks</div>
+                <div class="toggle-desc">Removes tags with <code>aria-hidden="true"</code>, <code>display:none</code>, & <code>font-size:0</code></div>
+              </div>
+            </label>
+
+            <label class="toggle-option">
+              <div class="switch-wrapper">
+                <input type="checkbox" id="opt-attrs" checked>
+                <span class="slider"></span>
+              </div>
+              <div class="toggle-content">
+                <div class="toggle-title">Dynamic Watermark Attributes</div>
+                <div class="toggle-desc">Removes randomized tracking attributes (e.g. <code>xya="brand novel"</code>)</div>
+              </div>
+            </label>
+
+            <label class="toggle-option">
+              <div class="switch-wrapper">
+                <input type="checkbox" id="opt-custom" checked>
+                <span class="slider"></span>
+              </div>
+              <div class="toggle-content">
+                <div class="toggle-title">Promotional / Ad Regex Filter</div>
+                <div class="toggle-desc">Removes promotional phrases like "Read on ..." or site advertisement links</div>
+              </div>
+            </label>
+
+            <!-- Custom Watermark Pattern Manager -->
+            <div id="custom-pattern-manager" class="custom-pattern-wrapper">
+              <div class="pattern-input-group">
+                <input type="text" id="input-new-pattern" placeholder="Add custom ad regex or keyword (e.g. NovelSite.com)" class="pattern-input">
+                <button id="btn-add-pattern" class="btn btn-secondary btn-sm" type="button">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Add
+                </button>
+              </div>
+              <div id="pattern-tags-list" class="pattern-tags-list">
+                <!-- Dynamically rendered pattern tags -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode 2: Compress & WebP Options Card -->
+        <div id="panel-options-compress" class="card options-card mode-panel hidden">
+          <div class="card-header">
+            <h3>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Image Compression & WebP Options
+            </h3>
+          </div>
+
+          <div class="control-grid">
+            <div class="input-group">
+              <label for="webp-quality-input">WebP Quality (<span id="webp-quality-val">75</span>%):</label>
+              <input type="range" id="webp-quality-input" min="30" max="95" value="75" class="range-slider">
+            </div>
+
+            <div class="input-group">
+              <label for="max-res-select">Maximum Image Resolution:</label>
+              <select id="max-res-select" class="select-input">
+                <option value="800">800 px (Compact & Lightweight)</option>
+                <option value="1000" selected>1000 px (Standard Recommendation)</option>
+                <option value="1200">1200 px (High Quality)</option>
+                <option value="0">Original Size (No Resize)</option>
+              </select>
+            </div>
+
+            <div class="compress-savings-banner" id="compress-savings-banner">
+              <div class="savings-banner-header">
+                <div class="savings-banner-title-wrap">
+                  <span class="savings-banner-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                  </span>
+                  <span class="savings-banner-title">Projected Storage Savings:</span>
+                </div>
+                <span class="savings-banner-badge" id="compress-savings-badge">~0%</span>
+              </div>
+              <div class="savings-banner-details">
+                <div class="savings-banner-item">
+                  <span class="savings-item-label">Reduction:</span>
+                  <span class="savings-item-val" id="compress-savings-amount">0 MB</span>
+                </div>
+                <div class="savings-banner-divider">/</div>
+                <div class="savings-banner-item">
+                  <span class="savings-item-label">Final Target:</span>
+                  <span class="savings-item-val" id="compress-savings-target">0 MB</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode 3: Split EPUB Options Card -->
+        <div id="panel-options-split" class="card options-card mode-panel hidden">
+          <div class="card-header">
+            <h3>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
+              EPUB Volume Partitioner (Splitter)
+            </h3>
+          </div>
+
+          <div class="control-grid">
+            <div class="input-group">
+              <label for="split-size-input">Max Size per Volume (MB):</label>
+              <input type="number" id="split-size-input" value="10" min="1" max="50" class="number-input">
+            </div>
+
+            <label class="toggle-option">
+              <div class="switch-wrapper">
+                <input type="checkbox" id="opt-split-webp" checked>
+                <span class="slider"></span>
+              </div>
+              <div class="toggle-content">
+                <div class="toggle-title">Auto-Compress Images to WebP When Splitting</div>
+                <div class="toggle-desc">Maximizes volume size efficiency and reader performance</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Mode 4: Edit Metadata & Cover Options Card -->
+        <div id="panel-options-metadata" class="card options-card mode-panel hidden">
+          <div class="card-header">
+            <h3>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Edit Book Information & Cover
+            </h3>
+          </div>
+
+          <div class="control-grid">
+            <div class="input-group">
+              <label for="meta-title-input">Book Title:</label>
+              <input type="text" id="meta-title-input" placeholder="Enter book title..." class="pattern-input">
+            </div>
+
+            <div class="input-group">
+              <label for="meta-creator-input">Author / Creator:</label>
+              <input type="text" id="meta-creator-input" placeholder="Author name..." class="pattern-input">
+            </div>
+
+            <div class="input-group">
+              <label for="meta-desc-input">Description / Synopsis:</label>
+              <textarea id="meta-desc-input" placeholder="Book synopsis or summary..." class="pattern-input meta-textarea" rows="2"></textarea>
+            </div>
+
+            <div class="meta-row">
+              <div class="input-group flex-1">
+                <label for="meta-publisher-input">Publisher:</label>
+                <input type="text" id="meta-publisher-input" placeholder="Publisher name..." class="pattern-input">
+              </div>
+
+              <div class="input-group width-90">
+                <label for="meta-lang-input">Language:</label>
+                <input type="text" id="meta-lang-input" placeholder="en" value="en" class="pattern-input">
+              </div>
+            </div>
+
+            <!-- Cover Replacement Box -->
+            <div class="cover-upload-box">
+              <input type="file" id="cover-file-picker" accept="image/jpeg,image/png,image/webp" hidden>
+              <button type="button" id="btn-browse-cover" class="btn btn-secondary btn-full btn-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Upload / Replace Cover Image
+              </button>
+              <span id="cover-file-name" class="cover-filename-label">Formats: JPG, PNG, WEBP</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Execute Action Card -->
+        <div class="card action-card">
+          <button id="btn-execute-action" class="btn btn-primary btn-large">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m8 11 4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            <span id="btn-action-label">Clean EPUB Now</span>
+          </button>
+
+          <!-- Progress Bar & Abort Control -->
+          <div id="cleaning-progress" class="progress-bar-wrapper hidden">
+            <div class="progress-info">
+              <span id="progress-text">Processing EPUB file...</span>
+              <span id="progress-percent">0%</span>
+            </div>
+            <div class="progress-bar">
+              <div id="progress-fill" class="progress-fill"></div>
+            </div>
+            <div class="progress-actions-row">
+              <button id="btn-cancel-batch" type="button" class="btn btn-danger btn-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
+                Cancel Process
+              </button>
+            </div>
+          </div>
+
+          <!-- Result & Download Box -->
+          <div id="download-result-box" class="download-result-box hidden">
+            <div class="result-success-badge">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <span id="result-success-msg">Processing Completed Successfully!</span>
+            </div>
+
+            <!-- Detailed Size Comparison Box -->
+            <div id="result-size-details" class="result-size-details">
+              <div class="size-detail-item">
+                <span class="size-detail-label">Original Size</span>
+                <span id="result-orig-size" class="size-detail-val">0 MB</span>
+              </div>
+              <div class="size-detail-arrow">➔</div>
+              <div class="size-detail-item">
+                <span class="size-detail-label">New Size</span>
+                <span id="result-new-size" class="size-detail-val highlight-green">0 MB</span>
+              </div>
+              <div class="size-detail-badge" id="result-saved-badge">Saved 0 MB</div>
+            </div>
+
+            <div class="result-path-info" id="result-output-path"></div>
+            
+            <div id="single-download-wrapper">
+              <a id="btn-download-file" href="#" class="btn btn-success btn-full">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download Cleaned EPUB
+              </a>
+            </div>
+
+            <div id="batch-download-wrapper" class="batch-download-container hidden">
+              <div class="batch-download-btn-group">
+                <button id="btn-download-batch-zip" type="button" class="btn btn-success btn-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Download All as ZIP Archive
+                </button>
+                <button id="btn-open-folder" type="button" class="btn btn-secondary btn-full" title="Open output folder in native File Explorer">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                  Open Folder in File Explorer
+                </button>
+              </div>
+            </div>
+
+            <div id="multi-download-wrapper" class="multi-download-list hidden">
+              <!-- Dynamically populated list of split parts or batch files -->
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Right Column: Dynamic View Panels -->
+      <section class="right-panel">
+        
+        <!-- Right Panel 1: Clean Mode View -->
+        <div id="right-panel-clean" class="right-panel-view">
+          <!-- Live Metrics Cards -->
+          <div class="stats-overview-grid">
+            <div class="stat-card" data-filter="zws" title="Click to filter Zero-Width Spaces">
+              <div class="stat-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              </div>
+              <div class="stat-data">
+                <div class="stat-value" id="stat-zws">0</div>
+                <div class="stat-label">Zero-Width Spaces</div>
+              </div>
+            </div>
+            <div class="stat-card" data-filter="hidden" title="Click to filter Hidden Elements">
+              <div class="stat-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+              </div>
+              <div class="stat-data">
+                <div class="stat-value" id="stat-hidden">0</div>
+                <div class="stat-label">Hidden Elements</div>
+              </div>
+            </div>
+            <div class="stat-card" data-filter="attrs" title="Click to filter Watermark Attributes">
+              <div class="stat-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+              </div>
+              <div class="stat-data">
+                <div class="stat-value" id="stat-attrs">0</div>
+                <div class="stat-label">Watermark Attributes</div>
+              </div>
+            </div>
+            <div class="stat-card" data-filter="all" title="Click to show all findings">
+              <div class="stat-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="12" x2="2" y2="12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" y1="16" x2="6.01" y2="16"/><line x1="10" y1="16" x2="10.01" y2="16"/></svg>
+              </div>
+              <div class="stat-data">
+                <div class="stat-value" id="stat-size-saved">0 KB</div>
+                <div class="stat-label">Estimated Storage Saved</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Diff Preview Panel -->
+          <div class="card diff-card">
+            <div class="card-header">
+              <div class="diff-header-left">
+                <h3>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                  Live Chapter Inspection & Preview
+                </h3>
+                <div id="search-banner" class="search-banner hidden">
+                  <span id="search-banner-text">Finding Chapter...</span>
+                  <button id="btn-next-match" class="btn-search-nav" title="Navigate to next matched chapter">Next Finding →</button>
+                </div>
+              </div>
+              <div class="diff-controls">
+                <label for="chapter-select">Select Chapter:</label>
+                <select id="chapter-select" disabled>
+                  <option value="0">Chapter 1</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- View Tabs -->
+            <div class="diff-tabs">
+              <button class="diff-tab active" data-tab="tab-diff">Side-by-Side Diff</button>
+              <button class="diff-tab" data-tab="tab-raw-before">Original RAW HTML</button>
+              <button class="diff-tab" data-tab="tab-clean-after">Cleaned Output HTML</button>
+            </div>
+
+            <div class="diff-content-wrapper">
+              <!-- Side-by-Side Tab -->
+              <div id="tab-diff" class="tab-pane active">
+                <div class="diff-split">
+                  <div class="diff-pane pane-before">
+                    <div class="pane-title">BEFORE (Original)</div>
+                    <div id="before-preview" class="code-preview">Select an EPUB file and click 'Analyze' to view live preview...</div>
+                  </div>
+                  <div class="diff-pane pane-after">
+                    <div class="pane-title">AFTER (Processed)</div>
+                    <div id="after-preview" class="code-preview">Processed output preview will appear here...</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- RAW Before Tab -->
+              <div id="tab-raw-before" class="tab-pane">
+                <pre id="raw-before-code" class="code-block">No file loaded.</pre>
+              </div>
+
+              <!-- RAW After Tab -->
+              <div id="tab-clean-after" class="tab-pane">
+                <pre id="clean-after-code" class="code-block">No file loaded.</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Panel 2: Compress Mode View -->
+        <div id="right-panel-compress" class="right-panel-view hidden">
+          <div class="stats-overview-grid">
+            <div class="stat-card">
+              <div class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+              <div class="stat-data">
+                <div class="stat-value" id="comp-stat-count">0</div>
+                <div class="stat-label">Internal Images</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+              <div class="stat-data">
+                <div class="stat-value" id="comp-stat-orig-size">0 MB</div>
+                <div class="stat-label">Original Image Size</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg></div>
+              <div class="stat-data">
+                <div class="stat-value" id="comp-stat-webp-size">0 MB</div>
+                <div class="stat-label">Estimated WebP Size</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+              <div class="stat-data">
+                <div class="stat-value" id="comp-stat-saved-pct">~70%</div>
+                <div class="stat-label">Storage Saved</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card diff-card">
+            <div class="card-header image-card-header">
+              <h3>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Inspect Image Assets & Optimization
+              </h3>
+              <div class="image-toolbar-actions">
+                <button type="button" id="btn-delete-all-unused" class="btn-toolbar-action btn-action-unused hidden" title="Delete all images not referenced in any chapter">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  <span>Delete Unused (<span id="unused-count-badge">0</span>)</span>
+                </button>
+                <button type="button" id="btn-delete-selected" class="btn-toolbar-action btn-action-danger hidden" title="Delete selected images">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  <span>Delete Selected (<span id="selected-count-badge">0</span>)</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- List Selection Bar -->
+            <div id="image-list-toolbar" class="image-list-toolbar hidden">
+              <label class="select-all-label">
+                <input type="checkbox" id="check-select-all-images" />
+                <span>Select All Images</span>
+              </label>
+              <div class="image-list-summary" id="image-list-summary">0 selected</div>
+            </div>
+
+            <!-- Image Asset Grid List -->
+            <div id="image-list-container" class="image-grid-container">
+              <div class="skeleton-loader">Select an EPUB file to inspect internal image assets...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Panel 3: Split Mode View -->
+        <div id="right-panel-split" class="right-panel-view hidden">
+          <div class="stats-overview-grid">
+            <div class="stat-card">
+              <div class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg></div>
+              <div class="stat-data">
+                <div class="stat-value" id="split-stat-orig-size">0 MB</div>
+                <div class="stat-label">Master File Size</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+              <div class="stat-data">
+                <div class="stat-value" id="split-stat-est-total">0 MB</div>
+                <div class="stat-label">Estimated Output Total</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+              <div class="stat-data">
+                <div class="stat-value" id="split-stat-parts-est">0 Volumes</div>
+                <div class="stat-label">Projected Volumes</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>
+              <div class="stat-data">
+                <div class="stat-value">Simulate</div>
+                <div class="stat-label">Chapter Partitions</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card diff-card">
+            <div class="card-header">
+              <h3>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                Projected Volume Partitions & Chapters
+              </h3>
+            </div>
+            <div class="partition-list-container" id="split-partition-list">
+              <div class="skeleton-loader">Select an EPUB file to view the volume splitting projection...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Panel 4: Edit Metadata & Cover View -->
+        <div id="right-panel-metadata" class="right-panel-view hidden">
+          <div class="card book-preview-card">
+            <div class="card-header">
+              <h3>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                EPUB Metadata & Cover Preview
+              </h3>
+            </div>
+            
+            <div class="book-card-display">
+              <div class="book-cover-wrapper">
+                <img id="book-cover-img" class="book-cover-img hidden" src="" alt="EPUB Book Cover" />
+                <div id="book-cover-placeholder" class="book-cover-placeholder">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <span>No Cover Available</span>
+                </div>
+              </div>
+
+              <div class="book-details-content">
+                <h2 id="book-title-head" class="book-title-heading">Book Title Not Loaded</h2>
+                <div id="book-author-sub" class="book-author-sub">Author: -</div>
+                
+                <div class="book-tags-row">
+                  <span id="book-badge-lang" class="book-badge">Language: EN</span>
+                  <span id="book-badge-publisher" class="book-badge badge-alt">Publisher: -</span>
+                </div>
+
+                <div class="book-synopsis-label">Synopsis / Description:</div>
+                <p id="book-desc-text" class="book-desc-text">Book description will appear here after analyzing the file.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Panel 5: Dedicated Batch Summary Dashboard View -->
+        <div id="right-panel-batch" class="right-panel-view hidden">
+          
+          <!-- Batch Aggregate Stats Overview Grid -->
+          <div class="stats-overview-grid">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div class="stat-data">
+                <div class="stat-value" id="batch-stat-total-files">0 Files</div>
+                <div class="stat-label">Total Batch Queue</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <div class="stat-data">
+                <div class="stat-value" id="batch-stat-orig-size">0 MB</div>
+                <div class="stat-label">Total Original Size</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
+              </div>
+              <div class="stat-data">
+                <div class="stat-value highlight-green" id="batch-stat-proc-size">0 MB</div>
+                <div class="stat-label">Total Output Size</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              </div>
+              <div class="stat-data">
+                <div class="stat-value highlight-green" id="batch-stat-saved-size">0 MB (0%)</div>
+                <div class="stat-label">Total Savings</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Batch Matrix Table Card -->
+          <div class="card batch-matrix-card">
+            <div class="card-header batch-matrix-header">
+              <div class="batch-matrix-title-wrap">
+                <h3>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
+                  Batch Matrix & Audit Summary
+                </h3>
+                <span id="batch-matrix-status-summary" class="batch-matrix-sub">0 files ready for processing</span>
+              </div>
+
+              <!-- Matrix Toolbar Actions -->
+              <div class="batch-matrix-toolbar">
+                <input type="text" id="batch-matrix-search" placeholder="Search file name..." class="pattern-input input-sm batch-search-input">
+                
+                <select id="batch-filter-status" class="select-input select-sm batch-filter-select">
+                  <option value="all">All Statuses</option>
+                  <option value="ready">Ready</option>
+                  <option value="success">Success</option>
+                  <option value="error">Failed</option>
+                </select>
+
+                <button type="button" id="btn-batch-dash-retry-failed" class="btn btn-secondary btn-sm hidden" title="Retry all failed files">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                  Retry Failed (<span id="batch-failed-count">0</span>)
+                </button>
+
+                <button type="button" id="btn-batch-dash-export" class="btn btn-secondary btn-sm" title="Export batch summary report to JSON">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Export Report
+                </button>
+              </div>
+            </div>
+
+            <!-- Batch Matrix Interactive Table -->
+            <div class="batch-matrix-table-wrap">
+              <table class="batch-matrix-table">
+                <thead>
+                  <tr>
+                    <th class="col-check" width="34">
+                      <input type="checkbox" id="chk-matrix-select-all" checked title="Select All">
+                    </th>
+                    <th class="col-name">EPUB File Name & Path</th>
+                    <th class="col-size" width="95">Original Size</th>
+                    <th class="col-newsize" width="95">Output Size</th>
+                    <th class="col-saved" width="105">Savings</th>
+                    <th class="col-findings" width="180">Findings / Stats</th>
+                    <th class="col-status" width="130">Status</th>
+                    <th class="col-actions" width="115">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="batch-matrix-tbody">
+                  <tr>
+                    <td colspan="8" class="empty-batch-cell">
+                      <div class="skeleton-loader">Drag & drop EPUB files or specify a folder to populate the batch matrix.</div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- Lightbox Modal Component for Image Inspection -->
+  <div id="image-lightbox-modal" class="image-modal-backdrop hidden">
+    <div class="image-modal-dialog">
+      <div class="image-modal-header">
+        <div class="image-modal-title-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <span id="modal-image-title">Image Preview</span>
+          <span id="modal-image-counter" class="image-modal-counter">1 / 1</span>
+        </div>
+        <button id="modal-close-btn" class="modal-close-btn" title="Close Modal (Esc)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="image-modal-body">
+        <button id="modal-prev-btn" class="modal-nav-btn prev-btn" title="Previous Image (Left Arrow)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="image-modal-view">
+          <img id="modal-image-element" src="" alt="Full Image Preview" />
+          <div id="modal-image-loader" class="modal-loader hidden">Loading image...</div>
+        </div>
+        <button id="modal-next-btn" class="modal-nav-btn next-btn" title="Next Image (Right Arrow)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      <div class="image-modal-footer">
+        <div class="modal-meta-row">
+          <div class="modal-meta-item">
+            <span class="modal-meta-label">File Name:</span>
+            <span id="modal-filename-val" class="modal-meta-val font-mono">-</span>
+          </div>
+          <div class="modal-meta-item">
+            <span class="modal-meta-label">Location:</span>
+            <span id="modal-chapter-val" class="modal-meta-val">-</span>
+          </div>
+          <div class="modal-meta-item">
+            <span class="modal-meta-label">Dimensions & Size:</span>
+            <span id="modal-dimension-val" class="modal-meta-val">-</span>
+          </div>
+        </div>
+        <div class="modal-footer-actions">
+          <button type="button" id="modal-delete-btn" class="btn-modal-delete" title="Delete this image from EPUB">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Delete This Image
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
