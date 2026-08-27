@@ -1,89 +1,113 @@
-# 📚 EPUB Studio (EPUB Cleaner & Optimizer)
+<div align="center">
 
-An all-in-one, ultra-fast web and desktop application designed to clean, compress, split, edit metadata, and batch-process EPUB files. Built with a modern dark glassmorphism interface and multithreaded Python backend.
+  <img src="logo.png" alt="EPUB Studio Logo" width="120" style="border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
 
-[![Download Windows App](https://img.shields.io/badge/Download-Windows%20Standalone%20(.exe)-0078D4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/encydu/epub-studio/releases/latest)
+  <h1>📚 EPUB Studio</h1>
 
-Developed by **[encydu](https://github.com/encydu)**.
+  <p><strong>Next-Gen EPUB Cleaner, WebP Compressor, Volume Splitter & Metadata Suite</strong></p>
+
+  <p>
+    <a href="https://github.com/encydu/epub-studio/releases/latest"><img src="https://img.shields.io/github/v/release/encydu/epub-studio?style=for-the-badge&logo=github&color=6366f1" alt="Latest Release" /></a>
+    <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20Web-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Platform" />
+    <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python Version" />
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-10b981?style=for-the-badge" alt="MIT License" /></a>
+  </p>
+
+  <p>
+    <a href="#-download-windows-portable">Download</a> •
+    <a href="#-features">Features</a> •
+    <a href="#-quick-start">Quick Start</a> •
+    <a href="#-tech-stack">Tech Stack</a> •
+    <a href="#-license">License</a>
+  </p>
+
+</div>
 
 ---
 
-## 📥 Download (Windows Standalone)
-No installation or Python required! Download the pre-built portable executable:
-👉 **[Download EPUB Cleaner.exe (Latest Release)](https://github.com/encydu/epub-studio/releases/latest)**
+## 📥 Download (Windows Portable)
+
+No Python or environment setup required! Download the standalone `.exe` and run immediately:
+
+👉 **[Download Latest `EPUB Cleaner.exe`](https://github.com/encydu/epub-studio/releases/latest)**
 
 ---
 
 ## ✨ Features
 
 ### 1. 🧹 Advanced Text & Anti-Scraper Cleaner
-- **Zero-Width Space (ZWS) Removal:** Strips invisible Unicode characters (`\u200B`, `\u200C`, `\u200D`, `\uFEFF`, `\u200E`, `\u200F`, `\u202A-\u202E`, `\u2060-\u2064`, `\u00AD`).
-- **Hidden Element Filtering:** Removes anti-scraper honey pots (`aria-hidden="true"`, `display:none`, `font-size:0`, `opacity:0`, `visibility:hidden`, `position:absolute` off-screen text).
-- **Dynamic Attribute Sanitization:** Strips randomized tracking attributes (e.g. `xya="brand"`) while preserving standard HTML5/SVG specifications.
-- **Custom Ad Regex Filtering:** Removes chapter watermarks, promotional site advertisements, and custom ad regex patterns.
-- **Live Side-by-Side Visual Diff:** Inspect original HTML vs. cleaned output with real-time highlighted changes before exporting.
+- **Zero-Width Space (ZWS) Removal:** Strips invisible Unicode noise (`\u200B`, `\u200C`, `\u200D`, `\uFEFF`, `\u200E`, `\u200F`, `\u202A-\u202E`, `\u2060-\u2064`, `\u00AD`).
+- **Hidden Anti-Scraper Honeypot Filtering:** Detects and eliminates hidden elements (`aria-hidden="true"`, `display:none`, `font-size:0`, `opacity:0`, `visibility:hidden`, and off-screen coordinates).
+- **Dynamic Attribute Sanitization:** Removes randomized tracking and fingerprint attributes (e.g. `xya="brand"`) while preserving standard HTML5/SVG standards.
+- **Custom Ad Regex Rules:** Strips website watermarks, chapter promotions, and domain URLs.
+- **Side-by-Side Visual Diff:** Real-time visual comparison of original vs. cleaned HTML content.
 
 ### 2. 🖼️ Image Compression & WebP Optimization
-- **WebP Converter:** Compresses internal images to high-efficiency WebP format with custom quality control (30%–95%).
-- **Resolution Scaling:** Resizes high-res images to configurable maximum dimensions (800px, 1000px, 1200px, or original).
-- **Image Inspector & Lightbox:** View all internal book images, inspect dimensions, identify unreferenced/unused images, and delete unwanted graphics directly from the EPUB.
+- **WebP Converter:** Compresses embedded book images to high-efficiency WebP format with customizable quality (30%–95%).
+- **Resolution Downscaler:** Automatically resizes oversized cover and illustration images (e.g. max 800px, 1000px, 1200px, or original).
+- **Image Inspector & Lightbox:** Inspect all internal images, check file dimensions, spot unreferenced graphics, and delete unwanted images directly.
 
 ### 3. ✂️ Volume Partitioner & Splitter
-- Split massive multi-thousand-chapter light novels into smaller, e-reader-friendly volumes based on target megabytes (e.g., 10MB per volume).
-- Automatically re-indexes OPF package manifests, NCX tables of contents, and nav documents.
-- Optional auto-compression to WebP during the splitting process.
+- Splits massive multi-thousand-chapter web novels into compact, e-reader-friendly volumes based on target megabytes (e.g. 10MB per volume).
+- Automatically reorganizes OPF package manifests, NCX tables of contents, and EPUB3 Navigation documents.
+- Optional on-the-fly WebP compression during splitting.
 
 ### 4. 🏷️ Metadata & Cover Editor
-- Modify OPF book metadata: Title, Creator / Author, Synopsis / Description, Publisher, and Language code.
-- Replace or upload high-resolution book covers (JPG, PNG, WebP).
+- Modify OPF book metadata: Book Title, Author / Creator, Synopsis / Description, Publisher, and Language code.
+- Replace or upload high-resolution book covers (JPEG, PNG, WebP).
 
-### 5. ⚡ Real-Time Sequential Batch Engine & Audit Matrix
-- **Bulk Drag-and-Drop & Recursive Directory Scan:** Process dozens of EPUB files simultaneously.
-- **Granular Queue:** Real-time progress bar, pause/abort controller (`AbortController`), and per-item status badges (*Pending, Analyzing, Processing, Done, Failed*).
-- **Batch Matrix Table:** Search files, filter by status, retry failed files, and export full audit reports to JSON.
-- **Flexible Export:** Save output to application folder, source directory (`_cleaned.epub`), custom directory, or download as a consolidated `.zip` archive.
+### 5. ⚡ Batch Engine & Audit Matrix
+- **Bulk Drag-and-Drop:** Queue and process dozens of EPUB files simultaneously.
+- **Sequential Queue:** Real-time progress tracking, pause/abort controls, and status badges (*Analyzing, Processing, Done, Failed*).
+- **Audit Matrix Table:** Filter by status, search files, retry failures, and export comprehensive audit logs to JSON.
+- **Flexible Output Destinations:** Save to source directory (`_cleaned.epub`), custom output folder, or download as a consolidated `.zip` package.
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start (Running from Source)
 
 ### Prerequisites
-- Python 3.10 or higher
-- Pillow (`pip install Pillow`)
-- BeautifulSoup4 (`pip install beautifulsoup4`)
-- lxml (`pip install lxml`)
+- **Python 3.10** or higher
+- Git
 
-### Installation
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/encydu/epub-studio.git
 cd epub-studio
-pip install -r requirements.txt # or pip install Pillow beautifulsoup4 lxml pywebview
 ```
 
-### Running the Web Interface
+### 2. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Run the Application
 ```bash
 python server.py
 ```
-Open your browser and navigate to **[http://127.0.0.1:8899](http://127.0.0.1:8899)**.
+> This will automatically open the native desktop window (via PyWebView). If PyWebView is not installed, it will automatically launch in your default web browser at `http://127.0.0.1:8899`.
 
-### Running as Desktop GUI App
-```bash
-python app_desktop.py
-```
+---
 
-### Building Windows Standalone Executable (.exe)
+## 📦 Building Standalone Executable (.exe)
+
+To package EPUB Studio into a single, portable Windows executable:
+
 ```cmd
-build_app.bat
+build.bat
 ```
+The compiled executable will be located in `dist/EPUB Cleaner.exe`.
 
 ---
 
 ## 🛠️ Tech Stack
-- **Backend:** Python 3 (ThreadingHTTPServer, ZipFile, lxml, BeautifulSoup4, PIL)
-- **Frontend:** Vanilla HTML5, CSS3 (Modern Glassmorphism Dark Theme, Plus Jakarta Sans & JetBrains Mono), Vanilla JavaScript (ES6+)
-- **Desktop Runtime:** PyWebView
+
+- **Backend:** Python 3 (`ThreadingHTTPServer`, `zipfile`, `lxml`, `beautifulsoup4`, `Pillow`)
+- **Frontend:** Vanilla HTML5, CSS3 (*Modern Glassmorphism Dark Theme, Plus Jakarta Sans, JetBrains Mono*), Modern ES6+ JavaScript
+- **Desktop Runtime:** PyWebView & PyInstaller
 
 ---
 
 ## 📄 License
-This project is open-source and available under the [MIT License](LICENSE).
+
+This project is licensed under the [MIT License](LICENSE) — developed by **[encydu](https://github.com/encydu)**.
