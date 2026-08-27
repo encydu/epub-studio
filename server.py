@@ -109,6 +109,9 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
         elif path == '/app.js':
             self._serve_file(os.path.join(STATIC_DIR, 'app.js'), 'application/javascript; charset=utf-8')
             return
+        elif path == '/logo.png' or path == '/favicon.png' or path == '/favicon.ico':
+            self._serve_file(os.path.join(STATIC_DIR, 'logo.png'), 'image/png')
+            return
 
         # API: Scan Downloads folder for EPUBs
         elif path == '/api/scan-downloads':

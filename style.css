@@ -103,6 +103,26 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
+.brand-logo-img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  border-radius: 4px;
+  display: block;
+}
+
+.brand-site-text {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: 0.2px;
+  transition: color 0.2s ease;
+}
+
+.site-badge:hover .brand-site-text {
+  color: #58a6ff;
+}
+
 .creator-icon {
   display: flex;
   align-items: center;
