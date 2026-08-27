@@ -174,6 +174,32 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalDimensionVal = document.getElementById('modal-dimension-val');
   const modalDeleteBtn = document.getElementById('modal-delete-btn');
 
+  // --- Sidebar Collapse / Expand Toggle Handler (Ctrl + B) ---
+  const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
+  const btnFloatingSidebarToggle = document.getElementById('btn-floating-sidebar-toggle');
+  const mainGrid = document.querySelector('.main-grid');
+
+  function toggleSidebar(forceState) {
+    if (!mainGrid) return;
+    const shouldCollapse = typeof forceState === 'boolean' ? forceState : !mainGrid.classList.contains('sidebar-collapsed');
+    mainGrid.classList.toggle('sidebar-collapsed', shouldCollapse);
+    document.body.classList.toggle('sidebar-is-collapsed', shouldCollapse);
+  }
+
+  if (btnToggleSidebar) {
+    btnToggleSidebar.addEventListener('click', () => toggleSidebar());
+  }
+  if (btnFloatingSidebarToggle) {
+    btnFloatingSidebarToggle.addEventListener('click', () => toggleSidebar(false));
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+      e.preventDefault();
+      toggleSidebar();
+    }
+  });
+
   // --- Collapsible Cards Toggle Handler ---
   document.querySelectorAll('.card.collapsible .card-header').forEach(header => {
     header.addEventListener('click', (e) => {
