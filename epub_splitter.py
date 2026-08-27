@@ -14,7 +14,6 @@ import xml.etree.ElementTree as ET
 import io
 from PIL import Image
 
-# Register XML namespaces
 NAMESPACES = {
     'container': 'urn:oasis:names:tc:opendocument:xmlns:container',
     'opf': 'http://www.idpf.org/2007/opf',
@@ -27,7 +26,6 @@ for prefix, uri in NAMESPACES.items():
     ET.register_namespace(prefix, uri)
 ET.register_namespace('', NAMESPACES['opf'])
 ET.register_namespace('dc', NAMESPACES['dc'])
-
 
 class EpubSplitterEngine:
     def __init__(self, input_path, max_size_mb=10, output_dir=None, use_webp=False, webp_quality=75, max_image_res=1000, progress_callback=None):
@@ -347,7 +345,6 @@ class EpubSplitterEngine:
 
         return created_files
 
-
 def compress_epub_images(input_path, output_path=None, webp_quality=75, max_image_res=1000):
     """
     Compresses all images inside an EPUB file and converts them to WebP.
@@ -368,13 +365,11 @@ def compress_epub_images(input_path, output_path=None, webp_quality=75, max_imag
             with zipfile.ZipFile(temp_output, 'w', compression=zipfile.ZIP_DEFLATED) as z_out:
                 namelist = z_in.namelist()
 
-                # Step 1: Mimetype
                 if 'mimetype' in namelist:
                     z_out.writestr('mimetype', z_in.read('mimetype'), compress_type=zipfile.ZIP_STORED)
 
                 image_replacements = {}
 
-                # Step 2: Compress images
                 for item in z_in.infolist():
                     if item.filename == 'mimetype':
                         continue
@@ -404,11 +399,9 @@ def compress_epub_images(input_path, output_path=None, webp_quality=75, max_imag
                         except Exception:
                             pass
 
-                    # Write unchanged binary files initially
                     if not item.filename.lower().endswith(('.xhtml', '.html', '.htm', '.opf')):
                         z_out.writestr(item.filename, data)
 
-                # Step 3: Rewrite HTML and OPF references to WebP
                 for item in z_in.infolist():
                     if item.filename == 'mimetype' or os.path.splitext(item.filename)[1].lower() in ['.jpg', '.jpeg', '.png', '.webp', '.bmp', '.gif']:
                         continue
@@ -451,7 +444,6 @@ def compress_epub_images(input_path, output_path=None, webp_quality=75, max_imag
             except OSError:
                 pass
         raise e
-
 
 def split_epub_file(input_path, max_size_mb=10, output_dir=None, use_webp=False, webp_quality=75, max_image_res=1000):
     """

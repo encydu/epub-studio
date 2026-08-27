@@ -6,7 +6,6 @@ echo   EPUB Cleaner - Build Standalone Application (.exe)
 echo ========================================================
 echo.
 
-:: Check for Python
 where python >nul 2>nul
 if %ERRORLEVEL% neq 0 (
     echo [ERROR] Python was not found in your system PATH!

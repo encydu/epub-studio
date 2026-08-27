@@ -17,7 +17,6 @@ import shutil
 from collections import Counter
 from bs4 import BeautifulSoup
 
-# Unicode invisible and zero-width characters range pattern
 ZWS_PATTERN = re.compile(
     r'[\u200B\u200C\u200D\uFEFF\u200E\u200F\u202A\u202B\u202C\u202D\u202E\u2060\u2061\u2062\u2063\u2064\u00AD]'
 )
@@ -29,21 +28,15 @@ if sys.platform == 'win32':
         pass
 
 STANDARD_ATTRS = {
-    # Global & Standard HTML
     'class', 'style', 'id', 'title', 'lang', 'dir', 'accesskey', 'tabindex', 'hidden',
     'itemprop', 'itemscope', 'itemtype', 'role',
-    # Head, Metadata & Links
     'xmlns', 'href', 'rel', 'type', 'media', 'target', 'charset', 'name', 'content',
     'http-equiv', 'hreflang', 'sizes', 'srcset',
-    # Media & Images
     'src', 'alt', 'width', 'height', 'align', 'valign', 'loading', 'decoding',
     'poster', 'controls', 'autoplay', 'loop', 'muted', 'preload', 'crossorigin',
-    # Form, Inputs & Controls
     'value', 'placeholder', 'disabled', 'checked', 'selected', 'readonly', 'multiple',
     'autocomplete', 'autofocus', 'rows', 'cols', 'start', 'reversed',
-    # Tables
     'colspan', 'rowspan', 'scope', 'headers',
-    # SVG Vector Graphics attributes
     'viewbox', 'preserveaspectratio', 'd', 'fill', 'stroke', 'stroke-width',
     'stroke-linecap', 'stroke-linejoin', 'stroke-dasharray', 'stroke-dashoffset',
     'stroke-opacity', 'fill-opacity', 'opacity', 'transform', 'cx', 'cy', 'r',
@@ -64,7 +57,6 @@ DEFAULT_OPTIONS = {
     ]
 }
 
-
 def is_valid_attr(attr_name):
     """Check if an attribute is a standard HTML/SVG attribute or valid namespace prefix."""
     lower_attr = attr_name.lower()
@@ -74,11 +66,9 @@ def is_valid_attr(attr_name):
         return True
     return False
 
-
 def count_zws_chars(text):
     """Count total zero-width invisible characters in text."""
     return len(ZWS_PATTERN.findall(text))
-
 
 def clean_html_content(html_str, options=None):
     """
@@ -89,7 +79,6 @@ def clean_html_content(html_str, options=None):
     if options is None:
         options = DEFAULT_OPTIONS
     else:
-        # Merge custom_patterns fallback if missing in options
         if 'custom_patterns' not in options or not options['custom_patterns']:
             options = dict(options, custom_patterns=DEFAULT_OPTIONS['custom_patterns'])
 
@@ -100,21 +89,18 @@ def clean_html_content(html_str, options=None):
         'custom_patterns_matched': 0
     }
 
-    # Extract XML declaration and DOCTYPE if present
     xml_decl_match = re.match(r'^\s*<\?xml[^>]*\?>', html_str, re.IGNORECASE)
     xml_decl = xml_decl_match.group(0).strip() if xml_decl_match else None
 
     doctype_match = re.search(r'<!DOCTYPE[^>]*>', html_str, re.IGNORECASE)
     doctype = doctype_match.group(0).strip() if doctype_match else None
 
-    # 1. Clean Zero-Width Characters if enabled
     if options.get('clean_zws', True):
         initial_zws = count_zws_chars(html_str)
         if initial_zws > 0:
             html_str = ZWS_PATTERN.sub('', html_str)
             stats['zws_removed'] = initial_zws
 
-    # 2. Custom Regex Filters if enabled
     if options.get('clean_custom_regex', True) and options.get('custom_patterns'):
         for pattern in options['custom_patterns']:
             if not pattern or not pattern.strip():
@@ -128,26 +114,21 @@ def clean_html_content(html_str, options=None):
             except re.error:
                 pass
 
-    # 3. DOM Level Cleaning via BeautifulSoup
     if options.get('clean_hidden_elements', True) or options.get('clean_watermark_attrs', True):
         try:
             soup = BeautifulSoup(html_str, 'html.parser')
 
-            # Clean hidden elements
             if options.get('clean_hidden_elements', True):
-                # Target aria-hidden="true"
                 hidden_tags = soup.find_all(attrs={"aria-hidden": "true"})
                 for tag in hidden_tags:
                     tag.decompose()
                     stats['hidden_elements_removed'] += 1
 
-                # Target hidden attribute
                 hidden_attr_tags = soup.find_all(attrs={"hidden": True})
                 for tag in hidden_attr_tags:
                     tag.decompose()
                     stats['hidden_elements_removed'] += 1
 
-                # Target inline styles that hide elements
                 for tag in soup.find_all(style=True):
                     style_val = tag['style'].lower()
                     if ('display:' in style_val and 'none' in style_val) or \
@@ -157,7 +138,6 @@ def clean_html_content(html_str, options=None):
                         tag.decompose()
                         stats['hidden_elements_removed'] += 1
 
-            # Clean watermark dynamic non-standard attributes
             if options.get('clean_watermark_attrs', True):
                 for tag in soup.find_all(True):
                     attrs_to_remove = [
@@ -170,10 +150,8 @@ def clean_html_content(html_str, options=None):
 
             cleaned_html = str(soup)
 
-            # Preserve SVG camelCase attributes
             cleaned_html = cleaned_html.replace('viewbox="', 'viewBox="').replace('preserveaspectratio="', 'preserveAspectRatio="')
 
-            # Restore XML declaration & DOCTYPE if omitted by parser
             if xml_decl and not cleaned_html.startswith('<?xml'):
                 cleaned_html = f"{xml_decl}\n{cleaned_html}"
             if doctype and doctype not in cleaned_html:
@@ -185,11 +163,9 @@ def clean_html_content(html_str, options=None):
             return cleaned_html, stats
 
         except Exception:
-            # Fallback to regex if parsing encounters errors
             return html_str, stats
 
     return html_str, stats
-
 
 def extract_chapter_title_from_html(html_str, fallback_name=""):
     """Extracts a human-readable title from chapter HTML (h1, h2, title)."""
@@ -212,7 +188,6 @@ def extract_chapter_title_from_html(html_str, fallback_name=""):
         if t and len(t) < 120 and t.lower() not in ['untitled', 'unknown', 'title']:
             return t
     return fallback_name
-
 
 def analyze_epub(epub_path, options=None):
     """
@@ -247,7 +222,6 @@ def analyze_epub(epub_path, options=None):
         namelist = z.namelist()
         analysis['total_files_in_epub'] = len(namelist)
 
-        # 1. Detect OPF and Cover image path
         cover_zip_path = None
         opf_file = None
         try:
@@ -295,10 +269,8 @@ def analyze_epub(epub_path, options=None):
             except Exception:
                 pass
 
-        # 2. Collect image files in ZIP
         img_files = [f for f in namelist if f.lower().endswith(('.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp'))]
 
-        # 3. Scan XHTML files to map image occurrences & count watermarks
         xhtml_files = [f for f in namelist if f.lower().endswith(('.xhtml', '.html', '.htm'))]
         analysis['xhtml_chapters_count'] = len(xhtml_files)
 
@@ -322,7 +294,6 @@ def analyze_epub(epub_path, options=None):
                 analysis['total_hidden_elements'] += hidden_count
                 analysis['total_watermark_attrs'] += custom_attrs_count
 
-                # Extract human-readable chapter title
                 default_name = f"Bab {idx + 1}"
                 if 'cover' in filename.lower() or 'titlepage' in filename.lower():
                     default_name = "Cover / Sampul"
@@ -340,7 +311,6 @@ def analyze_epub(epub_path, options=None):
                 }
                 analysis['chapters_summary'].append(chapter_info)
 
-                # Scan for image references inside this XHTML
                 ch_dir = posixpath.dirname(filename)
                 img_src_matches = re.findall(r'(?:src|xlink:href|href)=["\']([^"\']+\.(?:jpg|jpeg|png|webp|gif|bmp))["\']', content, re.IGNORECASE)
                 css_url_matches = re.findall(r'url\(["\']?([^"\'\)]+\.(?:jpg|jpeg|png|webp|gif|bmp))["\']?\)', content, re.IGNORECASE)
@@ -372,7 +342,6 @@ def analyze_epub(epub_path, options=None):
             except Exception:
                 pass
 
-        # 4. Build images_summary
         for img_f in img_files:
             try:
                 info = z.getinfo(img_f)
@@ -390,14 +359,12 @@ def analyze_epub(epub_path, options=None):
                 base_name = os.path.basename(img_f)
                 base_key = base_name.lower()
 
-                # Check if it is cover
                 is_cover = False
                 if cover_zip_path and (norm_img == cover_zip_path or base_key == os.path.basename(cover_zip_path).lower()):
                     is_cover = True
                 elif 'cover' in base_key and (len(img_files) == 1 or 'cover' in norm_img.lower()):
                     is_cover = True
 
-                # Get chapter references
                 ch_refs = image_chapter_refs.get(norm_img) or image_basename_refs.get(base_key) or []
                 seen_ch = set()
                 unique_chapters = []
@@ -427,7 +394,6 @@ def analyze_epub(epub_path, options=None):
 
     return analysis
 
-
 def get_preview_diff(epub_path, chapter_index=0, options=None):
     """
     Extracts a sample chapter from an EPUB and returns BEFORE vs AFTER cleaning snippet.
@@ -448,7 +414,6 @@ def get_preview_diff(epub_path, chapter_index=0, options=None):
             'after_html': cleaned_content,
             'stats': stats
         }
-
 
 def clean_epub(input_path, output_path=None, options=None):
     """
@@ -484,19 +449,16 @@ def clean_epub(input_path, output_path=None, options=None):
             with zipfile.ZipFile(temp_output, 'w', compression=zipfile.ZIP_DEFLATED) as z_out:
                 namelist = z_in.namelist()
 
-                # Step 1: Write 'mimetype' uncompressed FIRST as required by EPUB spec
                 if 'mimetype' in namelist:
                     mimetype_bytes = z_in.read('mimetype')
                     z_out.writestr('mimetype', mimetype_bytes, compress_type=zipfile.ZIP_STORED)
 
-                # Step 2: Process all other files
                 for item in z_in.infolist():
                     if item.filename == 'mimetype':
                         continue
 
                     data = z_in.read(item.filename)
 
-                    # Check if file is XHTML/HTML
                     if item.filename.lower().endswith(('.xhtml', '.html', '.htm')):
                         try:
                             content_str = data.decode('utf-8')
@@ -514,7 +476,6 @@ def clean_epub(input_path, output_path=None, options=None):
 
                     z_out.writestr(item.filename, data)
 
-        # Replace target output file atomically
         if os.path.exists(output_path):
             os.remove(output_path)
         os.rename(temp_output, output_path)
@@ -531,7 +492,6 @@ def clean_epub(input_path, output_path=None, options=None):
             except OSError:
                 pass
         raise e
-
 
 def analyze_epub_batch(epub_paths, options=None):
     """
@@ -560,7 +520,6 @@ def analyze_epub_batch(epub_paths, options=None):
                 'error': str(e)
             })
     return batch_summary
-
 
 def clean_epub_batch(epub_paths, output_dir=None, options=None):
     """
@@ -620,7 +579,6 @@ def clean_epub_batch(epub_paths, output_dir=None, options=None):
     batch_result['size_difference_bytes'] = batch_result['total_original_size_bytes'] - batch_result['total_cleaned_size_bytes']
     return batch_result
 
-
 def delete_epub_images(epub_path, target_images, output_path=None):
     """
     Deletes specified images from an EPUB file.
@@ -647,11 +605,9 @@ def delete_epub_images(epub_path, target_images, output_path=None):
         with zipfile.ZipFile(temp_output, 'w', compression=zipfile.ZIP_DEFLATED) as z_out:
             namelist = z_in.namelist()
 
-            # 1. Mimetype first
             if 'mimetype' in namelist:
                 z_out.writestr('mimetype', z_in.read('mimetype'), compress_type=zipfile.ZIP_STORED)
 
-            # 2. Process all other files
             for item in z_in.infolist():
                 if item.filename == 'mimetype':
                     continue
@@ -665,7 +621,6 @@ def delete_epub_images(epub_path, target_images, output_path=None):
 
                 raw_data = z_in.read(item.filename)
 
-                # 3. Clean OPF manifest
                 if item.filename.lower().endswith('.opf'):
                     try:
                         opf_str = raw_data.decode('utf-8', errors='ignore')
@@ -676,7 +631,6 @@ def delete_epub_images(epub_path, target_images, output_path=None):
                     except Exception:
                         pass
 
-                # 4. Clean XHTML chapters
                 elif item.filename.lower().endswith(('.xhtml', '.html', '.htm')):
                     try:
                         html_str = raw_data.decode('utf-8', errors='ignore')
@@ -717,7 +671,6 @@ def delete_epub_images(epub_path, target_images, output_path=None):
         'saved_bytes': max(0, orig_size - new_size),
         'analysis': fresh_analysis
     }
-
 
 def main():
     parser = argparse.ArgumentParser(description="EPUB Cleaner - Remove ZWS, hidden tags, and watermarks.")
@@ -783,7 +736,6 @@ def main():
                 
         if args.json:
             print(json.dumps(batch_results, indent=2))
-
 
 if __name__ == "__main__":
     main()

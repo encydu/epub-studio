@@ -25,7 +25,6 @@ if getattr(sys, 'frozen', False):
 else:
     STATIC_DIR = os.path.dirname(os.path.abspath(__file__))
 
-
 def find_all_epubs(paths_or_dirs):
     """
     Recursively scans provided paths or directories to locate all valid .epub files.
@@ -57,7 +56,6 @@ def find_all_epubs(paths_or_dirs):
             result.append(f)
     return result
 
-
 def pick_folder_dialog(initial_dir=None, title="Select Folder"):
     """
     Opens the native Windows folder picker dialog.
@@ -74,7 +72,6 @@ def pick_folder_dialog(initial_dir=None, title="Select Folder"):
     except Exception as e:
         print(f"Folder picker dialog notice: {e}")
         return None
-
 
 def cleanup_temp_files(force_all=False, max_age_seconds=1800):
     """
@@ -105,7 +102,6 @@ def cleanup_temp_files(force_all=False, max_age_seconds=1800):
                 pass
     return removed_count
 
-
 def get_temp_stats():
     """
     Returns the count and total size in bytes of temporary files in uploads/.
@@ -128,7 +124,6 @@ def get_temp_stats():
                 pass
     return {'count': count, 'size_bytes': size_bytes}
 
-
 def resolve_output_file(input_path, output_mode='same_dir', custom_dir=None, suffix='_cleaned'):
     """
     Resolves the destination filepath based on output_mode:
@@ -142,7 +137,6 @@ def resolve_output_file(input_path, output_mode='same_dir', custom_dir=None, suf
     if custom_dir and os.path.isdir(custom_dir):
         abs_custom = os.path.abspath(custom_dir)
         os.makedirs(abs_custom, exist_ok=True)
-        # If saving to the exact same folder as original, append suffix to avoid overwrite
         if os.path.normcase(abs_custom) == os.path.normcase(os.path.dirname(os.path.abspath(input_path))):
             return os.path.join(abs_custom, f"{base_name}{suffix}{ext}")
         return os.path.join(abs_custom, filename)
@@ -151,15 +145,13 @@ def resolve_output_file(input_path, output_mode='same_dir', custom_dir=None, suf
         target_dir = os.path.join(STATIC_DIR, 'uploads', subdir)
         os.makedirs(target_dir, exist_ok=True)
         return os.path.join(target_dir, filename)
-    else:  # 'same_dir' (default)
+    else:
         dir_name = os.path.dirname(os.path.abspath(input_path))
         return os.path.join(dir_name, f"{base_name}{suffix}{ext}")
-
 
 class EPUBCleanerHandler(BaseHTTPRequestHandler):
 
     def log_message(self, format, *args):
-        # Quiet logger for clean console output
         sys.stdout.write(f"[{self.log_date_time_string()}] {format % args}\n")
 
     def _set_headers(self, status=200, content_type='application/json'):
@@ -178,7 +170,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
         path = parsed_url.path
         query = urllib.parse.parse_qs(parsed_url.query)
 
-        # Serve static files
         if path == '/' or path == '/index.html':
             self._serve_file(os.path.join(STATIC_DIR, 'index.html'), 'text/html; charset=utf-8')
             return
@@ -192,7 +183,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
             self._serve_file(os.path.join(STATIC_DIR, 'logo.png'), 'image/png')
             return
 
-        # API: Scan Downloads folder for EPUBs
         elif path == '/api/scan-downloads':
             downloads_path = os.path.join(os.path.expanduser('~'), 'Downloads')
             epubs = []
@@ -213,12 +203,10 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({'status': 'ok', 'epubs': epubs}).encode('utf-8'))
             return
 
-        # API: Download cleaned / compressed file
         elif path == '/api/download':
             file_path = query.get('file', [''])[0]
             if file_path:
                 abs_path = os.path.abspath(file_path)
-                # Allow downloading any local .epub or .zip that exists
                 is_safe = os.path.exists(abs_path) and os.path.isfile(abs_path) and abs_path.lower().endswith(('.epub', '.zip'))
 
                 if is_safe:
@@ -237,7 +225,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({'error': 'File not found or access denied'}).encode('utf-8'))
             return
 
-        # API: Native Windows Folder Picker Dialog
         elif path == '/api/browse-folder':
             initial_dir = query.get('initial', [None])[0]
             title = query.get('title', ['Select Output Folder'])[0]
@@ -246,14 +233,12 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({'status': 'ok', 'folder': selected_folder}).encode('utf-8'))
             return
 
-        # API: Temporary Upload Storage Stats
         elif path == '/api/temp-stats':
             stats = get_temp_stats()
             self._set_headers(200)
             self.wfile.write(json.dumps({'status': 'ok', 'stats': stats}).encode('utf-8'))
             return
 
-        # API: Image Preview Stream from EPUB
         elif path == '/api/image-preview':
             epub_path = query.get('path', [''])[0]
             img_name = query.get('image', [''])[0]
@@ -306,7 +291,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
         path = parsed_url.path
         content_length = int(self.headers.get('Content-Length', 0))
 
-        # API: Upload File (Drag and Drop)
         if path == '/api/upload':
             raw_filename = self.headers.get('X-Filename', 'uploaded.epub')
             filename = os.path.basename(urllib.parse.unquote(raw_filename))
@@ -317,7 +301,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
             os.makedirs(uploads_dir, exist_ok=True)
             save_path = os.path.join(uploads_dir, filename)
 
-            # Read stream in 64KB chunks to prevent socket blocking/hanging
             remaining = content_length
             with open(save_path, 'wb') as f:
                 while remaining > 0:
@@ -332,7 +315,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({'status': 'ok', 'filename': filename, 'path': save_path}).encode('utf-8'))
             return
 
-        # Read JSON body for other endpoints
         body_bytes = b''
         remaining = content_length
         while remaining > 0:
@@ -347,7 +329,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
         except Exception:
             req_data = {}
 
-        # API: Analyze EPUB
         if path == '/api/analyze':
             epub_path = req_data.get('path')
             if not epub_path or not os.path.exists(epub_path):
@@ -364,7 +345,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({'error': str(e)}).encode('utf-8'))
             return
 
-        # API: Preview Chapter Diff
         elif path == '/api/preview':
             epub_path = req_data.get('path')
             chapter_index = req_data.get('chapter_index', 0)
@@ -382,7 +362,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({'error': str(e)}).encode('utf-8'))
             return
 
-        # API: Clean Single EPUB
         elif path == '/api/clean':
             epub_path = req_data.get('path')
             output_path = req_data.get('output_path')
@@ -407,7 +386,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({'error': str(e)}).encode('utf-8'))
             return
 
-        # API: Analyze EPUB Batch (Recursive folder support)
         elif path == '/api/analyze-batch':
             paths = req_data.get('paths', [])
             single_path = req_data.get('path')
@@ -429,7 +407,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({'error': str(e)}).encode('utf-8'))
             return
 
-        # API: Clean EPUB Batch
         elif path == '/api/clean-batch':
             paths = req_data.get('paths', [])
             single_path = req_data.get('path')
@@ -491,7 +468,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({'status': 'ok', 'result': batch_res}).encode('utf-8'))
             return
 
-        # API: Compress EPUB Batch
         elif path == '/api/compress-batch':
             paths = req_data.get('paths', [])
             single_path = req_data.get('path')
@@ -553,7 +529,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({'status': 'ok', 'result': batch_res}).encode('utf-8'))
             return
 
-        # API: Update EPUB Metadata Batch
         elif path == '/api/metadata/update-batch':
             paths = req_data.get('paths', [])
             single_path = req_data.get('path')
@@ -603,7 +578,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({'status': 'ok', 'result': batch_res}).encode('utf-8'))
             return
 
-        # API: Open Folder in native OS File Explorer
         elif path == '/api/open-folder':
             target_path = req_data.get('path')
             if not target_path:
@@ -632,7 +606,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({'error': str(e)}).encode('utf-8'))
             return
 
-        # API: Package Cleaned Batch into ZIP
         elif path == '/api/download-zip':
             files = req_data.get('files', [])
             if not files:
@@ -658,7 +631,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({'error': str(e)}).encode('utf-8'))
             return
 
-        # API: Get EPUB Metadata & Cover
         elif path == '/api/metadata/get':
             epub_path = req_data.get('path')
             if not epub_path or not os.path.exists(epub_path):
@@ -674,7 +646,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({'error': str(e)}).encode('utf-8'))
             return
 
-        # API: Update EPUB Metadata & Cover
         elif path == '/api/metadata/update':
             epub_path = req_data.get('path')
             output_path = req_data.get('output_path')
@@ -718,7 +689,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({'error': str(e)}).encode('utf-8'))
             return
 
-        # API: Delete Images from EPUB
         elif path == '/api/image/delete':
             epub_path = req_data.get('path')
             images_to_delete = req_data.get('images', [])
@@ -743,7 +713,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({'error': str(e)}).encode('utf-8'))
             return
 
-        # API: Compress EPUB Images
         elif path == '/api/compress':
             epub_path = req_data.get('path')
             webp_quality = req_data.get('webp_quality', 75)
@@ -774,7 +743,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({'error': str(e)}).encode('utf-8'))
             return
 
-        # API: Split EPUB into Volumes
         elif path == '/api/split':
             epub_path = req_data.get('path')
             max_size_mb = req_data.get('max_size_mb', 10)
@@ -804,7 +772,6 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({'error': str(e)}).encode('utf-8'))
             return
 
-        # API: Cleanup Temporary Uploads & Cached Files
         elif path == '/api/cleanup-temp':
             try:
                 removed_count = cleanup_temp_files(force_all=True)
@@ -828,16 +795,13 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
             self._set_headers(404, 'text/plain')
             self.wfile.write(b'File Not Found')
 
-
 def start_http_server(httpd):
     try:
         httpd.serve_forever()
     except Exception:
         pass
 
-
 def run_server():
-    # Purge old temporary upload files on launch
     try:
         cleanup_temp_files(force_all=False, max_age_seconds=1800)
     except Exception:
@@ -848,13 +812,11 @@ def run_server():
     url = f"http://{HOST}:{PORT}"
     print(f"🚀 EPUB Cleaner Server running at {url}")
 
-    # Start HTTP server in a background daemon thread
     server_thread = threading.Thread(target=start_http_server, args=(httpd,), daemon=True)
     server_thread.start()
 
     time.sleep(0.3)
 
-    # Launch Native Desktop Application Window
     try:
         import webview
         window = webview.create_window(
@@ -880,7 +842,6 @@ def run_server():
             httpd.server_close()
         except Exception:
             pass
-
 
 if __name__ == '__main__':
     run_server()

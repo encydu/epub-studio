@@ -14,10 +14,9 @@
 
   <div class="app-container">
 
-    <!-- App Header: Mode Navigation Tabs & Direct Website/GitHub Badges -->
     <header class="app-header">
       <div class="header-nav-group">
-        <!-- Toggle Sidebar Button -->
+
         <button type="button" id="btn-toggle-sidebar" class="btn-sidebar-toggle" title="Toggle Left Sidebar (Ctrl + B)">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
         </button>
@@ -46,15 +45,13 @@
         </nav>
       </div>
 
-      <!-- Direct Website & GitHub Links (Top Right) -->
       <div class="header-right-badges">
-        <!-- enuma.id Direct Website Link with App Logo -->
+
         <a href="https://enuma.id" target="_blank" rel="noopener noreferrer" class="creator-badge site-badge" title="Visit Website: https://enuma.id">
           <img src="logo.png" alt="Enuma ID" class="brand-logo-img">
           <span class="badge-text">Enuma ID</span>
         </a>
 
-        <!-- GitHub Profile Badge -->
         <a href="https://github.com/encydu" target="_blank" rel="noopener noreferrer" class="creator-badge github-badge" title="Visit GitHub Profile: https://github.com/encydu">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="badge-icon"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
           <span class="badge-text">encydu</span>
@@ -62,13 +59,10 @@
       </div>
     </header>
 
-    <!-- Main Grid Layout -->
     <main class="main-grid">
 
-      <!-- Left Column: Input & Options -->
       <section class="left-panel">
-        
-        <!-- File Input Card -->
+
         <div class="card file-card collapsible">
           <div class="card-header" role="button" tabindex="0" title="Click to collapse / expand section">
             <h3>
@@ -81,7 +75,7 @@
           </div>
 
           <div class="card-body">
-            <!-- Drag & Drop Zone -->
+
             <div id="drop-zone" class="drop-zone">
               <input type="file" id="file-picker" accept=".epub" multiple hidden>
               <div class="drop-zone-icon">
@@ -93,7 +87,6 @@
               </div>
             </div>
 
-            <!-- Path Input -->
             <div class="input-group">
               <label for="epub-path-input">Or Enter File / Directory Path (Recursive Scan Supported)</label>
               <div class="path-input-wrapper">
@@ -105,7 +98,6 @@
               </div>
             </div>
 
-            <!-- Enhanced Batch Files Queue Container -->
             <div id="batch-queue-container" class="batch-queue-wrapper hidden">
               <div class="batch-queue-header">
                 <div class="batch-queue-header-left">
@@ -121,7 +113,6 @@
                 </div>
               </div>
 
-              <!-- Queue Selection Toolbar -->
               <div class="batch-queue-toolbar">
                 <label class="batch-select-all-label">
                   <input type="checkbox" id="chk-batch-select-all" checked>
@@ -131,11 +122,10 @@
               </div>
 
               <div id="batch-queue-list" class="batch-queue-list">
-                <!-- Dynamically populated list of files -->
+
               </div>
             </div>
 
-            <!-- Output Destination Settings (Browse Folder) -->
             <div class="output-dest-section">
               <div class="output-dest-header">
                 <label class="output-dest-label" for="output-folder-input">
@@ -158,7 +148,6 @@
           </div>
         </div>
 
-        <!-- Mode 1: Cleaning Options Card -->
         <div id="panel-options-clean" class="card options-card mode-panel collapsible collapsed">
           <div class="card-header" role="button" tabindex="0" title="Click to collapse / expand section">
             <h3>
@@ -169,7 +158,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
             </span>
           </div>
-          
+
           <div class="card-body">
             <div class="options-grid">
               <label class="toggle-option">
@@ -216,7 +205,6 @@
                 </div>
               </label>
 
-              <!-- Custom Watermark Pattern Manager -->
               <div id="custom-pattern-manager" class="custom-pattern-wrapper">
                 <div class="pattern-input-group">
                   <input type="text" id="input-new-pattern" placeholder="Add custom ad regex or keyword (e.g. NovelSite.com)" class="pattern-input">
@@ -226,14 +214,13 @@
                   </button>
                 </div>
                 <div id="pattern-tags-list" class="pattern-tags-list">
-                  <!-- Dynamically rendered pattern tags -->
+
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Mode 2: Compress & WebP Options Card -->
         <div id="panel-options-compress" class="card options-card mode-panel hidden collapsible collapsed">
           <div class="card-header" role="button" tabindex="0" title="Click to collapse / expand section">
             <h3>
@@ -288,7 +275,6 @@
           </div>
         </div>
 
-        <!-- Mode 3: Split EPUB Options Card -->
         <div id="panel-options-split" class="card options-card mode-panel hidden collapsible collapsed">
           <div class="card-header" role="button" tabindex="0" title="Click to collapse / expand section">
             <h3>
@@ -321,7 +307,6 @@
           </div>
         </div>
 
-        <!-- Mode 4: Edit Metadata & Cover Options Card -->
         <div id="panel-options-metadata" class="card options-card mode-panel hidden collapsible collapsed">
           <div class="card-header" role="button" tabindex="0" title="Click to collapse / expand section">
             <h3>
@@ -362,7 +347,6 @@
                 </div>
               </div>
 
-              <!-- Cover Replacement Box -->
               <div class="cover-upload-box">
                 <input type="file" id="cover-file-picker" accept="image/jpeg,image/png,image/webp" hidden>
                 <button type="button" id="btn-browse-cover" class="btn btn-secondary btn-full btn-sm">
@@ -375,14 +359,12 @@
           </div>
         </div>
 
-        <!-- Execute Action Card -->
         <div class="card action-card">
           <button id="btn-execute-action" class="btn btn-primary btn-large">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m8 11 4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
             <span id="btn-action-label">Clean EPUB Now</span>
           </button>
 
-          <!-- Progress Bar & Abort Control -->
           <div id="cleaning-progress" class="progress-bar-wrapper hidden">
             <div class="progress-info">
               <span id="progress-text">Processing EPUB file...</span>
@@ -399,14 +381,12 @@
             </div>
           </div>
 
-          <!-- Result & Download Box -->
           <div id="download-result-box" class="download-result-box hidden">
             <div class="result-success-badge">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
               <span id="result-success-msg">Processing Completed Successfully!</span>
             </div>
 
-            <!-- Detailed Size Comparison Box -->
             <div id="result-size-details" class="result-size-details">
               <div class="size-detail-item">
                 <span class="size-detail-label">Original Size</span>
@@ -421,7 +401,7 @@
             </div>
 
             <div class="result-path-info" id="result-output-path"></div>
-            
+
             <div id="single-download-wrapper">
               <a id="btn-download-file" href="#" class="btn btn-success btn-full">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -443,19 +423,17 @@
             </div>
 
             <div id="multi-download-wrapper" class="multi-download-list hidden">
-              <!-- Dynamically populated list of split parts or batch files -->
+
             </div>
           </div>
         </div>
 
       </section>
 
-      <!-- Right Column: Dynamic View Panels -->
       <section class="right-panel">
-        
-        <!-- Right Panel 1: Clean Mode View -->
+
         <div id="right-panel-clean" class="right-panel-view">
-          <!-- Live Metrics Cards -->
+
           <div class="stats-overview-grid">
             <div class="stat-card" data-filter="zws" title="Click to filter Zero-Width Spaces">
               <div class="stat-icon">
@@ -495,7 +473,6 @@
             </div>
           </div>
 
-          <!-- Diff Preview Panel -->
           <div class="card diff-card">
             <div class="card-header">
               <div class="diff-header-left">
@@ -516,7 +493,6 @@
               </div>
             </div>
 
-            <!-- View Tabs -->
             <div class="diff-tabs">
               <button class="diff-tab active" data-tab="tab-diff">Side-by-Side Diff</button>
               <button class="diff-tab" data-tab="tab-raw-before">Original RAW HTML</button>
@@ -524,7 +500,7 @@
             </div>
 
             <div class="diff-content-wrapper">
-              <!-- Side-by-Side Tab -->
+
               <div id="tab-diff" class="tab-pane active">
                 <div class="diff-split">
                   <div class="diff-pane pane-before">
@@ -538,12 +514,10 @@
                 </div>
               </div>
 
-              <!-- RAW Before Tab -->
               <div id="tab-raw-before" class="tab-pane">
                 <pre id="raw-before-code" class="code-block">No file loaded.</pre>
               </div>
 
-              <!-- RAW After Tab -->
               <div id="tab-clean-after" class="tab-pane">
                 <pre id="clean-after-code" class="code-block">No file loaded.</pre>
               </div>
@@ -551,7 +525,6 @@
           </div>
         </div>
 
-        <!-- Right Panel 2: Compress Mode View -->
         <div id="right-panel-compress" class="right-panel-view hidden">
           <div class="stats-overview-grid">
             <div class="stat-card">
@@ -602,7 +575,6 @@
               </div>
             </div>
 
-            <!-- List Selection Bar -->
             <div id="image-list-toolbar" class="image-list-toolbar hidden">
               <label class="select-all-label">
                 <input type="checkbox" id="check-select-all-images" />
@@ -611,14 +583,12 @@
               <div class="image-list-summary" id="image-list-summary">0 selected</div>
             </div>
 
-            <!-- Image Asset Grid List -->
             <div id="image-list-container" class="image-grid-container">
               <div class="skeleton-loader">Select an EPUB file to inspect internal image assets...</div>
             </div>
           </div>
         </div>
 
-        <!-- Right Panel 3: Split Mode View -->
         <div id="right-panel-split" class="right-panel-view hidden">
           <div class="stats-overview-grid">
             <div class="stat-card">
@@ -664,7 +634,6 @@
           </div>
         </div>
 
-        <!-- Right Panel 4: Edit Metadata & Cover View -->
         <div id="right-panel-metadata" class="right-panel-view hidden">
           <div class="card book-preview-card">
             <div class="card-header">
@@ -673,7 +642,7 @@
                 EPUB Metadata & Cover Preview
               </h3>
             </div>
-            
+
             <div class="book-card-display">
               <div class="book-cover-wrapper">
                 <img id="book-cover-img" class="book-cover-img hidden" src="" alt="EPUB Book Cover" />
@@ -686,7 +655,7 @@
               <div class="book-details-content">
                 <h2 id="book-title-head" class="book-title-heading">Book Title Not Loaded</h2>
                 <div id="book-author-sub" class="book-author-sub">Author: -</div>
-                
+
                 <div class="book-tags-row">
                   <span id="book-badge-lang" class="book-badge">Language: EN</span>
                   <span id="book-badge-publisher" class="book-badge badge-alt">Publisher: -</span>
@@ -699,10 +668,8 @@
           </div>
         </div>
 
-        <!-- Right Panel 5: Dedicated Batch Summary Dashboard View -->
         <div id="right-panel-batch" class="right-panel-view hidden">
-          
-          <!-- Batch Aggregate Stats Overview Grid -->
+
           <div class="stats-overview-grid">
             <div class="stat-card">
               <div class="stat-icon">
@@ -745,7 +712,6 @@
             </div>
           </div>
 
-          <!-- Batch Matrix Table Card -->
           <div class="card batch-matrix-card">
             <div class="card-header batch-matrix-header">
               <div class="batch-matrix-title-wrap">
@@ -756,10 +722,9 @@
                 <span id="batch-matrix-status-summary" class="batch-matrix-sub">0 files ready for processing</span>
               </div>
 
-              <!-- Matrix Toolbar Actions -->
               <div class="batch-matrix-toolbar">
                 <input type="text" id="batch-matrix-search" placeholder="Search file name..." class="pattern-input input-sm batch-search-input">
-                
+
                 <select id="batch-filter-status" class="select-input select-sm batch-filter-select">
                   <option value="all">All Statuses</option>
                   <option value="ready">Ready</option>
@@ -779,7 +744,6 @@
               </div>
             </div>
 
-            <!-- Batch Matrix Interactive Table -->
             <div class="batch-matrix-table-wrap">
               <table class="batch-matrix-table">
                 <thead>
@@ -812,7 +776,6 @@
     </main>
   </div>
 
-  <!-- Lightbox Modal Component for Image Inspection -->
   <div id="image-lightbox-modal" class="image-modal-backdrop hidden">
     <div class="image-modal-dialog">
       <div class="image-modal-header">

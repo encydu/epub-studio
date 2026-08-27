@@ -1,18 +1,12 @@
-/**
- * EPUB Studio Frontend Application Script
- * Complete Suite for EPUB Cleaning, Image Compression, Volume Splitting,
- * Metadata Editing, and Granular Real-time Batch Processing.
- */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // --- DOM Elements ---
+
   const pathInput = document.getElementById('epub-path-input');
   const btnAnalyze = document.getElementById('btn-analyze');
   const btnExecuteAction = document.getElementById('btn-execute-action');
   const btnActionLabel = document.getElementById('btn-action-label');
   const chapterSelect = document.getElementById('chapter-select');
 
-  // Mode Navigation & Views
   const modeTabs = document.querySelectorAll('.mode-tab');
   const tabModeBatch = document.getElementById('tab-mode-batch');
   const navBatchBadge = document.getElementById('nav-batch-badge');
@@ -32,7 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
     batch: document.getElementById('right-panel-batch')
   };
 
-  // Metadata Form Elements
   const metaTitleInput = document.getElementById('meta-title-input');
   const metaCreatorInput = document.getElementById('meta-creator-input');
   const metaDescInput = document.getElementById('meta-desc-input');
@@ -54,13 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
   let newCoverB64 = null;
   let newCoverExt = 'jpg';
 
-  // Clean Options
   const optZws = document.getElementById('opt-zws');
   const optHidden = document.getElementById('opt-hidden');
   const optAttrs = document.getElementById('opt-attrs');
   const optCustom = document.getElementById('opt-custom');
 
-  // Compress & Split Inputs
   const webpQualityInput = document.getElementById('webp-quality-input');
   const webpQualityVal = document.getElementById('webp-quality-val');
   const maxResSelect = document.getElementById('max-res-select');
@@ -70,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const splitSizeInput = document.getElementById('split-size-input');
   const optSplitWebp = document.getElementById('opt-split-webp');
 
-  // Compress Stats & Image Inspector
   const compStatCount = document.getElementById('comp-stat-count');
   const compStatOrigSize = document.getElementById('comp-stat-orig-size');
   const compStatWebpSize = document.getElementById('comp-stat-webp-size');
@@ -84,25 +74,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnDeleteSelected = document.getElementById('btn-delete-selected');
   const selectedCountBadge = document.getElementById('selected-count-badge');
 
-  // Split Stats
   const splitStatOrigSize = document.getElementById('split-stat-orig-size');
   const splitStatEstTotal = document.getElementById('split-stat-est-total');
   const splitStatPartsEst = document.getElementById('split-stat-parts-est');
   const splitPartitionList = document.getElementById('split-partition-list');
 
-  // Clean Stats
   const statZws = document.getElementById('stat-zws');
   const statHidden = document.getElementById('stat-hidden');
   const statAttrs = document.getElementById('stat-attrs');
   const statSizeSaved = document.getElementById('stat-size-saved');
 
-  // Previews & Diffs
   const beforePreview = document.getElementById('before-preview');
   const afterPreview = document.getElementById('after-preview');
   const rawBeforeCode = document.getElementById('raw-before-code');
   const cleanAfterCode = document.getElementById('clean-after-code');
 
-  // Progress, Results & Output Controls
   const progressWrapper = document.getElementById('cleaning-progress');
   const progressFill = document.getElementById('progress-fill');
   const progressText = document.getElementById('progress-text');
@@ -123,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnDownloadBatchZip = document.getElementById('btn-download-batch-zip');
   const btnOpenFolder = document.getElementById('btn-open-folder');
 
-  // Batch Queue Controls
   const batchQueueContainer = document.getElementById('batch-queue-container');
   const batchFileCount = document.getElementById('batch-file-count');
   const batchSelectedCount = document.getElementById('batch-selected-count');
@@ -150,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Batch Matrix Dashboard Elements
   const batchStatTotalFiles = document.getElementById('batch-stat-total-files');
   const batchStatOrigSize = document.getElementById('batch-stat-orig-size');
   const batchStatProcSize = document.getElementById('batch-stat-proc-size');
@@ -164,7 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const batchFailedCount = document.getElementById('batch-failed-count');
   const btnBatchDashExport = document.getElementById('btn-batch-dash-export');
 
-  // Tabs & Dropzone Controls
   const tabs = document.querySelectorAll('.diff-tab');
   const tabPanes = document.querySelectorAll('.tab-pane');
   const searchBanner = document.getElementById('search-banner');
@@ -175,7 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnBrowseFile = document.getElementById('btn-browse-file');
   const statCards = document.querySelectorAll('.stat-card');
 
-  // Lightbox Modal Elements
   const imageLightboxModal = document.getElementById('image-lightbox-modal');
   const modalCloseBtn = document.getElementById('modal-close-btn');
   const modalPrevBtn = document.getElementById('modal-prev-btn');
@@ -189,7 +171,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalDimensionVal = document.getElementById('modal-dimension-val');
   const modalDeleteBtn = document.getElementById('modal-delete-btn');
 
-  // --- Sidebar Collapse / Expand Toggle Handler (Ctrl + B) ---
   const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
   const mainGrid = document.querySelector('.main-grid');
 
@@ -211,7 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // --- Collapsible Cards Toggle Handler ---
   document.querySelectorAll('.card.collapsible .card-header').forEach(header => {
     header.addEventListener('click', (e) => {
       if (e.target.closest('button') || e.target.closest('input') || e.target.closest('select') || e.target.closest('a')) return;
@@ -229,14 +209,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // --- Global Application State ---
-  let activeMode = 'clean'; // 'clean', 'compress', 'split', 'metadata', 'batch'
+  let activeMode = 'clean';
   let previousModeBeforeBatch = 'clean';
   let currentAnalysis = null;
   let currentEpubPath = '';
   let activeFilter = 'all';
 
-  // Batch Queue: Array of objects
   let batchFiles = [];
   let batchAbortController = null;
   let isBatchRunning = false;
@@ -245,7 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentModalIndex = 0;
   let selectedImageFilenames = new Set();
 
-  // --- Custom Pattern Manager ---
   const inputNewPattern = document.getElementById('input-new-pattern');
   const btnAddPattern = document.getElementById('btn-add-pattern');
   const patternTagsList = document.getElementById('pattern-tags-list');
@@ -341,7 +318,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // --- Mode Switching ---
   function switchMode(mode) {
     if (activeMode !== 'batch' && mode !== 'batch') {
       previousModeBeforeBatch = mode;
@@ -418,7 +394,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- Batch Queue Management & UI ---
   function updateBatchQueueUI() {
     if (!batchQueueContainer || !batchQueueList) return;
 
@@ -452,7 +427,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateActionButtonLabel();
 
-    // Render left queue items
     batchQueueList.innerHTML = batchFiles.map((item, idx) => {
       let statusBadge = '<span class="status-badge badge-pending">Pending</span>';
       let itemClass = '';
@@ -499,7 +473,6 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }).join('');
 
-    // Wire item events
     batchQueueList.querySelectorAll('.batch-item-chk').forEach(chk => {
       chk.addEventListener('click', (e) => e.stopPropagation());
       chk.addEventListener('change', (e) => {
@@ -585,7 +558,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Browse Output Destination Folder
   if (btnBrowseOutputFolder) {
     btnBrowseOutputFolder.addEventListener('click', async () => {
       try {
@@ -643,7 +615,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Right Panel: Batch Dashboard & Matrix Table ---
   function renderBatchDashboard() {
     if (!batchMatrixTbody) return;
 
@@ -793,7 +764,6 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }).join('');
 
-    // Wire Matrix Table row events
     batchMatrixTbody.querySelectorAll('.matrix-row-chk').forEach(chk => {
       chk.addEventListener('click', (e) => e.stopPropagation());
       chk.addEventListener('change', (e) => {
@@ -900,7 +870,6 @@ document.addEventListener('DOMContentLoaded', () => {
     URL.revokeObjectURL(url);
   }
 
-  // --- Adding Files to Batch (Dropzone & Picker) ---
   async function handleBatchFiles(fileList) {
     const files = Array.from(fileList).filter(f => f.name.toLowerCase().endsWith('.epub'));
     if (files.length === 0) {
@@ -981,7 +950,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- Single & Batch Execution Engine ---
   async function executeAction() {
     if (!currentEpubPath && pathInput && pathInput.value.trim()) {
       currentEpubPath = pathInput.value.trim();
@@ -1231,7 +1199,6 @@ document.addEventListener('DOMContentLoaded', () => {
     runBatchExecution([item]);
   }
 
-  // --- Single File Execution Handlers ---
   async function runSingleExecution(targetPath) {
     btnExecuteAction.disabled = true;
     progressWrapper.classList.remove('hidden');
@@ -1277,7 +1244,6 @@ document.addEventListener('DOMContentLoaded', () => {
             statAttrs.textContent = r.watermark_attrs_removed.toLocaleString();
             statSizeSaved.textContent = formatFileSize(r.size_difference_bytes);
 
-            // Sync current active path
             currentEpubPath = r.output_file;
             if (pathInput) pathInput.value = r.output_file;
 
@@ -1329,7 +1295,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             statSizeSaved.textContent = formatFileSize(r.size_difference_bytes);
 
-            // Sync current active path
             currentEpubPath = r.output_file;
             if (pathInput) pathInput.value = r.output_file;
 
@@ -1537,7 +1502,6 @@ document.addEventListener('DOMContentLoaded', () => {
     resultSavedBadge.textContent = `Saved ${formatFileSize(saved)} (${pct}%)`;
   }
 
-  // --- EPUB Analysis & Previews ---
   async function analyzeEpub(filePath) {
     if (!filePath) return;
 
@@ -1616,7 +1580,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (beforePreview) beforePreview.innerHTML = preview.before_html;
         if (afterPreview) afterPreview.innerHTML = preview.after_html;
 
-        // Raw HTML tabs
         if (rawBeforeCode) {
           let escapedRaw = escapeHtml(preview.before_html);
           escapedRaw = escapedRaw.replace(
@@ -1657,7 +1620,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (statSizeSaved) statSizeSaved.textContent = formatFileSize(estSavedBytes);
   }
 
-  // --- Chapter Search Banner & Stat Card Filter ---
   function findNextMatchingChapter(fromIdx) {
     if (!currentAnalysis || !currentAnalysis.chapters_summary) return null;
     const chapters = currentAnalysis.chapters_summary;
@@ -1735,7 +1697,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Compress View & Image Inspector ---
   function calculateSingleImageEst(img, quality, maxRes) {
     const origBytes = img.size_bytes || 0;
     const ext = (img.ext || '').toLowerCase();
@@ -1807,7 +1768,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (compressSavingsAmount) compressSavingsAmount.textContent = formatFileSize(totalSavedBytes);
     if (compressSavingsTarget) compressSavingsTarget.textContent = formatFileSize(totalEstimatedWebpBytes);
 
-    // Unused images count
     const unusedImages = analysis.unused_images || images.filter(i => i.is_unused);
     if (unusedCountBadge) unusedCountBadge.textContent = unusedImages.length.toString();
     if (btnDeleteAllUnused) {
@@ -2146,7 +2106,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Event Setup ---
   [optZws, optHidden, optAttrs, optCustom].forEach(chk => {
     if (chk) {
       chk.addEventListener('change', () => {
@@ -2266,7 +2225,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Dropzone & File Pickers
   if (btnBrowseFile && filePicker) {
     btnBrowseFile.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -2304,7 +2262,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Initial setup
   if (pathInput) pathInput.value = '';
   currentEpubPath = '';
   currentAnalysis = null;
