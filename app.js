@@ -132,8 +132,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const chkBatchSelectAll = document.getElementById('chk-batch-select-all');
   const batchQueueTotals = document.getElementById('batch-queue-totals');
   const batchQueueList = document.getElementById('batch-queue-list');
-  const batchOutputDestSelect = document.getElementById('batch-output-dest-select');
-  const batchCustomDirInput = document.getElementById('batch-custom-dir-input');
+  const outputFolderInput = document.getElementById('output-folder-input');
+  const btnBrowseOutputFolder = document.getElementById('btn-browse-output-folder');
+  const btnResetOutputFolder = document.getElementById('btn-reset-output-folder');
+  let chosenOutputFolder = '';
+
+  function getOutputDestination() {
+    if (chosenOutputFolder) {
+      return {
+        output_mode: 'custom_dir',
+        output_dir: chosenOutputFolder
+      };
+    }
+    return {
+      output_mode: 'same_dir',
+      output_dir: ''
+    };
+  }
 
   // Batch Matrix Dashboard Elements
   const batchStatTotalFiles = document.getElementById('batch-stat-total-files');
@@ -324,25 +339,6 @@ document.addEventListener('DOMContentLoaded', () => {
       clean_custom_patterns: optCustom ? optCustom.checked : true,
       custom_patterns_list: customPatterns
     };
-  }
-
-  function getOutputDestination() {
-    const dest = batchOutputDestSelect ? batchOutputDestSelect.value : 'uploads';
-    const customDir = (batchCustomDirInput && !batchCustomDirInput.classList.contains('hidden')) ? batchCustomDirInput.value.trim() : '';
-    return {
-      output_mode: dest,
-      output_dir: customDir || null
-    };
-  }
-
-  if (batchOutputDestSelect) {
-    batchOutputDestSelect.addEventListener('change', () => {
-      if (batchOutputDestSelect.value === 'custom_dir') {
-        if (batchCustomDirInput) batchCustomDirInput.classList.remove('hidden');
-      } else {
-        if (batchCustomDirInput) batchCustomDirInput.classList.add('hidden');
-      }
-    });
   }
 
   // --- Mode Switching ---
@@ -589,6 +585,64 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Browse Output Destination Folder
+  if (btnBrowseOutputFolder) {
+    btnBrowseOutputFolder.addEventListener('click', async () => {
+      try {
+        btnBrowseOutputFolder.disabled = true;
+        btnBrowseOutputFolder.textContent = 'Opening...';
+        const res = await fetch(`/api/browse-folder?initial=${encodeURIComponent(chosenOutputFolder || '')}&title=${encodeURIComponent('Select Output Folder')}`);
+        const data = await res.json();
+        if (data.status === 'ok' && data.folder) {
+          chosenOutputFolder = data.folder;
+          if (outputFolderInput) {
+            outputFolderInput.value = chosenOutputFolder;
+            outputFolderInput.title = chosenOutputFolder;
+          }
+          if (btnResetOutputFolder) {
+            btnResetOutputFolder.classList.remove('hidden');
+          }
+        }
+      } catch (err) {
+        console.error('Failed to open folder picker:', err);
+      } finally {
+        btnBrowseOutputFolder.disabled = false;
+        btnBrowseOutputFolder.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> Browse...`;
+      }
+    });
+  }
+
+  if (btnResetOutputFolder) {
+    btnResetOutputFolder.addEventListener('click', () => {
+      chosenOutputFolder = '';
+      if (outputFolderInput) {
+        outputFolderInput.value = '';
+        outputFolderInput.title = '';
+      }
+      btnResetOutputFolder.classList.add('hidden');
+    });
+  }
+
+  const btnCleanTempCache = document.getElementById('btn-clean-temp-cache');
+  if (btnCleanTempCache) {
+    btnCleanTempCache.addEventListener('click', async () => {
+      try {
+        btnCleanTempCache.textContent = 'Cleaning...';
+        const res = await fetch('/api/cleanup-temp', { method: 'POST' });
+        const data = await res.json();
+        if (data.status === 'ok') {
+          showToast(`Cleaned ${data.removed_count || 0} temporary uploaded files from cache.`, 'success');
+        } else {
+          showToast('Failed to clean temp cache: ' + (data.error || 'Unknown error'), 'info');
+        }
+      } catch (err) {
+        showToast('Network error while cleaning cache.', 'info');
+      } finally {
+        btnCleanTempCache.textContent = 'Clean Temp';
+      }
+    });
+  }
+
   // --- Right Panel: Batch Dashboard & Matrix Table ---
   function renderBatchDashboard() {
     if (!batchMatrixTbody) return;
@@ -641,8 +695,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    const searchQuery = batchMatrixSearch ? batchMatrixSearch.value.trim().toLowerCase() : '';
-    const statusFilter = batchFilterStatus ? batchFilterStatus.value : 'all';
+    const searchQuery = (batchMatrixSearch && typeof batchMatrixSearch.value === 'string') ? batchMatrixSearch.value.trim().toLowerCase() : '';
+    const statusFilter = (batchFilterStatus && batchFilterStatus.value) ? batchFilterStatus.value : 'all';
 
     const filteredFiles = batchFiles.filter(f => {
       if (searchQuery && !f.name.toLowerCase().includes(searchQuery)) return false;
@@ -929,10 +983,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Single & Batch Execution Engine ---
   async function executeAction() {
+    if (!currentEpubPath && pathInput && pathInput.value.trim()) {
+      currentEpubPath = pathInput.value.trim();
+    }
     const selectedFiles = batchFiles.filter(b => b.selected);
 
     if (selectedFiles.length === 0 && !currentEpubPath) {
-      alert('Please select at least one EPUB file to process.');
+      alert('Please select or enter an EPUB file to process.');
       return;
     }
 
@@ -1119,6 +1176,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         `).join('');
         multiDownloadWrapper.classList.remove('hidden');
+        showToast(`${actionTitle}! (${successfulCount} of ${totalToProcess} files succeeded)`, 'success');
 
         if (btnDownloadBatchZip) {
           btnDownloadBatchZip.onclick = async () => {
@@ -1219,6 +1277,11 @@ document.addEventListener('DOMContentLoaded', () => {
             statAttrs.textContent = r.watermark_attrs_removed.toLocaleString();
             statSizeSaved.textContent = formatFileSize(r.size_difference_bytes);
 
+            // Sync current active path
+            currentEpubPath = r.output_file;
+            if (pathInput) pathInput.value = r.output_file;
+
+            showToast('EPUB Cleaned Successfully!', 'success', `/api/download?file=${encodeURIComponent(r.output_file)}`);
             analyzeEpub(r.output_file);
           }, 500);
         } else {
@@ -1265,6 +1328,14 @@ document.addEventListener('DOMContentLoaded', () => {
             downloadBox.classList.remove('hidden');
 
             statSizeSaved.textContent = formatFileSize(r.size_difference_bytes);
+
+            // Sync current active path
+            currentEpubPath = r.output_file;
+            if (pathInput) pathInput.value = r.output_file;
+
+            const savedPct = r.original_size_bytes > 0 ? ((r.size_difference_bytes / r.original_size_bytes) * 100).toFixed(0) : 0;
+            showToast(`Image Compression Complete! Saved ${formatFileSize(r.size_difference_bytes)} (~${savedPct}%)`, 'success', `/api/download?file=${encodeURIComponent(r.output_file)}`);
+
             analyzeEpub(r.output_file);
           }, 500);
         } else {
@@ -1314,6 +1385,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             singleDownloadWrapper.classList.remove('hidden');
             downloadBox.classList.remove('hidden');
+
+            currentEpubPath = r.output_file;
+            if (pathInput) pathInput.value = r.output_file;
+
+            showToast('EPUB Information & Cover Updated Successfully!', 'success', `/api/download?file=${encodeURIComponent(r.output_file)}`);
 
             fetchMetadata(r.output_file);
           }, 500);
@@ -1380,6 +1456,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
           multiDownloadWrapper.classList.remove('hidden');
           downloadBox.classList.remove('hidden');
+
+          showToast(`Successfully Split EPUB into ${parts.length} Volumes!`, 'success');
         }, 500);
       } else {
         alert('Failed to split EPUB: ' + (data.error || 'Unknown error'));
@@ -1389,6 +1467,52 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Network error occurred.');
       resetProgressUI();
     }
+  }
+
+  function showToast(message, type = 'success', downloadUrl = null) {
+    let toastContainer = document.getElementById('app-toast-container');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'app-toast-container';
+      toastContainer.className = 'app-toast-container';
+      document.body.appendChild(toastContainer);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `app-toast toast-${type}`;
+
+    let downloadBtnHtml = '';
+    if (downloadUrl) {
+      downloadBtnHtml = `
+        <a href="${downloadUrl}" class="toast-btn-download" title="Download processed file">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      `;
+    }
+
+    toast.innerHTML = `
+      <div class="toast-content">
+        <span class="toast-icon">${type === 'success' ? '✓' : 'ℹ'}</span>
+        <span class="toast-msg">${escapeHtml(message)}</span>
+      </div>
+      ${downloadBtnHtml}
+      <button type="button" class="toast-close" title="Close">&times;</button>
+    `;
+
+    toast.querySelector('.toast-close').addEventListener('click', () => {
+      toast.classList.add('toast-fadeout');
+      setTimeout(() => toast.remove(), 250);
+    });
+
+    toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+      if (toast.parentElement) {
+        toast.classList.add('toast-fadeout');
+        setTimeout(() => toast.remove(), 250);
+      }
+    }, 7000);
   }
 
   function updateProgress(percent, text) {

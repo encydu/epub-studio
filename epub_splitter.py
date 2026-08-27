@@ -357,7 +357,7 @@ def compress_epub_images(input_path, output_path=None, webp_quality=75, max_imag
 
     if output_path is None:
         base, ext = os.path.splitext(input_path)
-        output_path = f"{base}_compressed{ext}"
+        output_path = f"{base}_enuma.id_compressed{ext}"
 
     temp_output = output_path + ".tmp"
     original_size = os.path.getsize(input_path)

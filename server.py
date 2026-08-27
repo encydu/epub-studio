@@ -8,6 +8,8 @@ import os
 import sys
 import json
 import glob
+import time
+import threading
 import zipfile
 import base64
 import urllib.parse
@@ -18,7 +20,10 @@ import epub_metadata
 
 PORT = 8899
 HOST = '127.0.0.1'
-STATIC_DIR = os.path.dirname(os.path.abspath(__file__))
+if getattr(sys, 'frozen', False):
+    STATIC_DIR = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(sys.executable)))
+else:
+    STATIC_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def find_all_epubs(paths_or_dirs):
@@ -40,7 +45,7 @@ def find_all_epubs(paths_or_dirs):
                     'cleaned_batch', 'compressed_batch', 'temp', 'tmp', '__pycache__', 'node_modules', 'dist', 'build'
                 ]]
                 for f in files:
-                    if f.lower().endswith('.epub') and not f.lower().endswith(('_cleaned.epub', '_compressed.epub', '_meta.epub')):
+                    if f.lower().endswith('.epub') and not f.lower().endswith(('_cleaned.epub', '_compressed.epub', '_meta.epub', '_enuma.id_compressed.epub', '_enuma.id_cleaned.epub')):
                         found.append(os.path.join(root, f))
 
     seen = set()
@@ -53,28 +58,102 @@ def find_all_epubs(paths_or_dirs):
     return result
 
 
-def resolve_output_file(input_path, output_mode='uploads', custom_dir=None, suffix='_cleaned'):
+def pick_folder_dialog(initial_dir=None, title="Select Folder"):
+    """
+    Opens the native Windows folder picker dialog.
+    """
+    try:
+        import tkinter as tk
+        from tkinter import filedialog
+        root = tk.Tk()
+        root.withdraw()
+        root.attributes('-topmost', True)
+        folder = filedialog.askdirectory(initialdir=initial_dir or os.path.expanduser('~'), title=title)
+        root.destroy()
+        return os.path.normpath(folder) if folder else None
+    except Exception as e:
+        print(f"Folder picker dialog notice: {e}")
+        return None
+
+
+def cleanup_temp_files(force_all=False, max_age_seconds=1800):
+    """
+    Purges temporary uploaded/generated files inside uploads/ to prevent EPUB accumulation.
+    """
+    uploads_dir = os.path.join(STATIC_DIR, 'uploads')
+    if not os.path.exists(uploads_dir):
+        return 0
+
+    removed_count = 0
+    now = time.time()
+    for root, dirs, files in os.walk(uploads_dir, topdown=False):
+        for f in files:
+            if f == '.gitkeep':
+                continue
+            file_path = os.path.join(root, f)
+            try:
+                if force_all or (now - os.path.getmtime(file_path) > max_age_seconds):
+                    os.remove(file_path)
+                    removed_count += 1
+            except Exception:
+                pass
+        if root != uploads_dir:
+            try:
+                if not os.listdir(root):
+                    os.rmdir(root)
+            except Exception:
+                pass
+    return removed_count
+
+
+def get_temp_stats():
+    """
+    Returns the count and total size in bytes of temporary files in uploads/.
+    """
+    uploads_dir = os.path.join(STATIC_DIR, 'uploads')
+    if not os.path.exists(uploads_dir):
+        return {'count': 0, 'size_bytes': 0}
+
+    count = 0
+    size_bytes = 0
+    for root, dirs, files in os.walk(uploads_dir):
+        for f in files:
+            if f == '.gitkeep':
+                continue
+            file_path = os.path.join(root, f)
+            try:
+                size_bytes += os.path.getsize(file_path)
+                count += 1
+            except Exception:
+                pass
+    return {'count': count, 'size_bytes': size_bytes}
+
+
+def resolve_output_file(input_path, output_mode='same_dir', custom_dir=None, suffix='_cleaned'):
     """
     Resolves the destination filepath based on output_mode:
+      - 'custom_dir': saves inside custom_dir with the original filename (or suffix if in same folder)
+      - 'same_dir' (default): saves in the same folder as input_path with specified suffix
       - 'uploads': saves in STATIC_DIR/uploads/<type>_batch/<filename>
-      - 'same_dir': saves in the same folder as input_path with specified suffix
-      - 'custom_dir': saves inside custom_dir with the original filename
     """
     filename = os.path.basename(input_path)
     base_name, ext = os.path.splitext(filename)
 
-    if output_mode == 'same_dir':
-        dir_name = os.path.dirname(os.path.abspath(input_path))
-        return os.path.join(dir_name, f"{base_name}{suffix}{ext}")
-    elif output_mode == 'custom_dir' and custom_dir:
+    if custom_dir and os.path.isdir(custom_dir):
         abs_custom = os.path.abspath(custom_dir)
         os.makedirs(abs_custom, exist_ok=True)
+        # If saving to the exact same folder as original, append suffix to avoid overwrite
+        if os.path.normcase(abs_custom) == os.path.normcase(os.path.dirname(os.path.abspath(input_path))):
+            return os.path.join(abs_custom, f"{base_name}{suffix}{ext}")
         return os.path.join(abs_custom, filename)
-    else:  # 'uploads' (default)
+    elif output_mode == 'uploads':
         subdir = 'cleaned_batch' if 'clean' in suffix else ('compressed_batch' if 'compress' in suffix else 'metadata_batch')
         target_dir = os.path.join(STATIC_DIR, 'uploads', subdir)
         os.makedirs(target_dir, exist_ok=True)
         return os.path.join(target_dir, filename)
+    else:  # 'same_dir' (default)
+        dir_name = os.path.dirname(os.path.abspath(input_path))
+        return os.path.join(dir_name, f"{base_name}{suffix}{ext}")
 
 
 class EPUBCleanerHandler(BaseHTTPRequestHandler):
@@ -119,7 +198,7 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
             epubs = []
             if os.path.exists(downloads_path):
                 for f in os.listdir(downloads_path):
-                    if f.lower().endswith('.epub') and not f.lower().endswith(('_cleaned.epub', '_compressed.epub')):
+                    if f.lower().endswith('.epub') and not f.lower().endswith(('_cleaned.epub', '_compressed.epub', '_meta.epub', '_enuma.id_compressed.epub', '_enuma.id_cleaned.epub')):
                         full_path = os.path.join(downloads_path, f)
                         try:
                             size_bytes = os.path.getsize(full_path)
@@ -156,6 +235,22 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
 
             self._set_headers(404)
             self.wfile.write(json.dumps({'error': 'File not found or access denied'}).encode('utf-8'))
+            return
+
+        # API: Native Windows Folder Picker Dialog
+        elif path == '/api/browse-folder':
+            initial_dir = query.get('initial', [None])[0]
+            title = query.get('title', ['Select Output Folder'])[0]
+            selected_folder = pick_folder_dialog(initial_dir=initial_dir, title=title)
+            self._set_headers(200)
+            self.wfile.write(json.dumps({'status': 'ok', 'folder': selected_folder}).encode('utf-8'))
+            return
+
+        # API: Temporary Upload Storage Stats
+        elif path == '/api/temp-stats':
+            stats = get_temp_stats()
+            self._set_headers(200)
+            self.wfile.write(json.dumps({'status': 'ok', 'stats': stats}).encode('utf-8'))
             return
 
         # API: Image Preview Stream from EPUB
@@ -422,7 +517,7 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
             total_images_comp = 0
 
             for ep in expanded_paths:
-                out_file = resolve_output_file(ep, output_mode, custom_dir, suffix='_compressed')
+                out_file = resolve_output_file(ep, output_mode, custom_dir, suffix='_enuma.id_compressed')
                 try:
                     res = epub_splitter.compress_epub_images(
                         input_path=ep,
@@ -663,7 +758,7 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
                 return
 
             if not output_path:
-                output_path = resolve_output_file(epub_path, output_mode, custom_dir, suffix='_compressed')
+                output_path = resolve_output_file(epub_path, output_mode, custom_dir, suffix='_enuma.id_compressed')
 
             try:
                 result = epub_splitter.compress_epub_images(
@@ -709,6 +804,17 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({'error': str(e)}).encode('utf-8'))
             return
 
+        # API: Cleanup Temporary Uploads & Cached Files
+        elif path == '/api/cleanup-temp':
+            try:
+                removed_count = cleanup_temp_files(force_all=True)
+                self._set_headers(200)
+                self.wfile.write(json.dumps({'status': 'ok', 'removed_count': removed_count}).encode('utf-8'))
+            except Exception as e:
+                self._set_headers(500)
+                self.wfile.write(json.dumps({'error': str(e)}).encode('utf-8'))
+            return
+
         else:
             self._set_headers(404)
             self.wfile.write(json.dumps({'error': 'Endpoint not found'}).encode('utf-8'))
@@ -723,15 +829,57 @@ class EPUBCleanerHandler(BaseHTTPRequestHandler):
             self.wfile.write(b'File Not Found')
 
 
-def run_server():
-    server_address = (HOST, PORT)
-    httpd = ThreadingHTTPServer(server_address, EPUBCleanerHandler)
-    print(f"🚀 EPUB Cleaner Server running at http://{HOST}:{PORT}")
+def start_http_server(httpd):
     try:
         httpd.serve_forever()
-    except KeyboardInterrupt:
-        print("\nStopping server...")
-        httpd.server_close()
+    except Exception:
+        pass
+
+
+def run_server():
+    # Purge old temporary upload files on launch
+    try:
+        cleanup_temp_files(force_all=False, max_age_seconds=1800)
+    except Exception:
+        pass
+
+    server_address = (HOST, PORT)
+    httpd = ThreadingHTTPServer(server_address, EPUBCleanerHandler)
+    url = f"http://{HOST}:{PORT}"
+    print(f"🚀 EPUB Cleaner Server running at {url}")
+
+    # Start HTTP server in a background daemon thread
+    server_thread = threading.Thread(target=start_http_server, args=(httpd,), daemon=True)
+    server_thread.start()
+
+    time.sleep(0.3)
+
+    # Launch Native Desktop Application Window
+    try:
+        import webview
+        window = webview.create_window(
+            title="EPUB Studio - Cleaner, Compressor & Splitter",
+            url=url,
+            width=1320,
+            height=850,
+            min_size=(960, 620),
+            resizable=True
+        )
+        webview.start()
+    except Exception as e:
+        print(f"Native desktop window notice ({e}), opening web browser...")
+        try:
+            import webbrowser
+            webbrowser.open(url)
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            pass
+    finally:
+        try:
+            httpd.server_close()
+        except Exception:
+            pass
 
 
 if __name__ == '__main__':
